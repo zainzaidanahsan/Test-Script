@@ -13,7 +13,8 @@ async function main() {
             user: 'pmifsm',
             password: 'pmifsm',
             connectionLimit: 10,
-            database: 'pmifsm'
+            database: 'pmifsm',
+            acquireTimeout: 20000
         });
 
         conn = await pool.getConnection();

@@ -3,7 +3,7 @@ const mariadb = require('mariadb');
 const { execSync } = require('child_process');
 
 async function main() {
-    console.log('Script started')
+    console.log('Script started');
 
     let conn;
     try {
@@ -20,7 +20,7 @@ async function main() {
         const snowArchival = new SnowArchival(conn, '/mt/ebs/result', 1000);
 
         await snowArchival.start();
-	    console.log('Script finished');
+        console.log('Script finished');
     } catch (err) {
         console.log(err);
     } finally {
@@ -39,13 +39,37 @@ class SnowArchival {
         'b89ae391478f695047f2c071e36d436d',
         'd630e4d51b0ba550b3f5a6c3b24bcbe0',
         'ff4f94951b0ba550b3f5a6c3b24bcb76',
-    ]
+    ];
+
+    includedRitms = [
+        'RITM1187823',
+        'RITM0010503',
+        'RITM0376153',
+        'RITM0556811',
+        'RITM1023899',
+        'RITM0017426',
+        'RITM1187691',
+        'RITM0376145',
+        'RITM0989659',
+        'RITM0831264',
+        'RITM1187787',
+        'RITM1187698',
+        'RITM0376155',
+        'RITM1188570',
+        'RITM1188451',
+        'RITM0010483',
+        'RITM1068622',
+        'RITM0937637',
+        'RITM0937756',
+        'RITM0019738'
+    ];
 
     constructor(conn, resultDir, batchSize) {
         this.conn = conn;
         this.resultDir = resultDir;
         this.batchSize = batchSize;
     }
+
     async start() {
         let startIdx = 0;
 
@@ -54,17 +78,17 @@ class SnowArchival {
             if (tasks.length === 0) break;
 
             if (startIdx === 0) {
-                tasks = tasks.filter(t => !this.excludedRitms.includes(t.sys_id))
+                tasks = tasks.filter(t => !this.excludedRitms.includes(t.sys_id));
             }
 
             startIdx += this.batchSize;
 
             const groupPath = this.getGroupPath(tasks);
-            console.log(groupPath, startIdx)
+            console.log(groupPath, startIdx);
 
             for (const task of tasks) {
                 try {
-                    const taskPath = this.getTaskPath(groupPath, task)
+                    const taskPath = this.getTaskPath(groupPath, task);
                     execSync(`mkdir -p ${taskPath}`);
                     await this.extractCsv(task, taskPath);
                     await this.extractAttachments(task, taskPath);
@@ -89,14 +113,12 @@ class SnowArchival {
 
         let stageName = '';
         if (contexts && contexts.length > 0) {
-            const context = contexts[0]
-    
+            const context = contexts[0];
             const stages = await this.conn.query(`select name from wf_stage where sys_id = '${context.stage}'`);
             stageName = stages[0]?.name;
         }
 
         const closedAtDate = new Date(task.closed_at);
-        // const resolvedAt = this.formatDateBeta(closedAtDate.setDate(closedAtDate.getDate() - 7));
 
         const data = {
             'Number': task.number,
@@ -128,17 +150,17 @@ class SnowArchival {
             'Approval Set': task.approval_set,
             'Reassignment Count': task.reassignment_count,
             'Related Ticket': reference,
-            'Reopening Count': '', 
+            'Reopening Count': '',
             'Comments And Work Notes': commentsAndWorkNotes,
-            'Request': task.a_str_2, 
+            'Request': task.a_str_2,
             'Sys Watch List': task.a_str_24,
-        }
+        };
 
         const header = Object.keys(data).join(',');
-        const values = Object.values(data).join(',');
+        const values = Object.values(data).map(value => `"${value}"`).join(',');
 
         // Write CSV string to file
-        const filepath = `\"${taskPath}/${task.number}.csv\"`
+        const filepath = `\"${taskPath}/${task.number}.csv\"`;
         fs.writeFileSync('data.csv', `${header}\n${values}`);
         execSync(`mv data.csv ${filepath}`);
     }
@@ -155,7 +177,7 @@ class SnowArchival {
 
     async getReference(task) {
         const refTask = await this.conn.query(`select number from task where sys_id = '${task.a_ref_9}'`);
-        return refTask.number;
+        return refTask[0]?.number || '';
     }
 
     constructJournal(j) {
@@ -163,7 +185,8 @@ class SnowArchival {
     }
 
     async getTasks(offset, limit) {
-        return this.conn.query(`select * from task where sys_class_name = 'sc_req_item' order by number desc limit ${limit} offset ${offset};`);
+        const ritmList = this.includedRitms.map(ritm => `'${ritm}'`).join(',');
+        return this.conn.query(`select * from task where sys_class_name = 'sc_req_item' and number in (${ritmList}) order by number desc limit ${limit} offset ${offset};`);
     }
 
     async getTask(taskNumber) {
@@ -193,13 +216,11 @@ class SnowArchival {
             acc[chunk.sys_attachment_id].chunks.push(chunk);
             return acc;
         }, {});
-        const res = Object.values(grouped);
-
-    	return res;
+        return Object.values(grouped);
     }
 
     extractAttachment(attachment, taskPath) {
-    	const base64Chunks = attachment.chunks.map(chunk => chunk.data);
+        const base64Chunks = attachment.chunks.map(chunk => chunk.data);
 
         const concatenatedBuffer = this.decodeMultipartBase64(base64Chunks);
         const meta = attachment.chunks[0];
@@ -229,13 +250,13 @@ class SnowArchival {
     }
 
     getTaskPath(groupPath, task) {
-        return `${groupPath}/${task.number}_${this.formatDateWithTime(task.sys_created_on)}`
+        return `${groupPath}/${task.number}_${this.formatDateWithTime(task.sys_created_on)}`;
     }
 
     getGroupPath(tasks) {
         const startTask = tasks[0];
-        const endTask = tasks[tasks.length - 1]
-        return `${this.resultDir}/${startTask.number}-${endTask.number}_${this.formatDate(startTask.sys_created_on)}_${this.formatDate(endTask.sys_created_on)}`
+        const endTask = tasks[tasks.length - 1];
+        return `${this.resultDir}/${startTask.number}-${endTask.number}_${this.formatDate(startTask.sys_created_on)}_${this.formatDate(endTask.sys_created_on)}`;
     }
 
     formatDateBeta(date) {
@@ -245,9 +266,9 @@ class SnowArchival {
         const hours = String(date.getHours()).padStart(2, '0');
         const minutes = String(date.getMinutes()).padStart(2, '0');
         return `${day}/${month}/${year} ${hours}:${minutes}`;
-      }
+    }
 
-   formatDate(date) {
+    formatDate(date) {
         const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
         const day = String(date.getDate()).padStart(2, '0');
         const month = months[date.getMonth()];

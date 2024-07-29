@@ -157,12 +157,19 @@ class SnowArchival {
         };
 
         const header = Object.keys(data).join(',');
-        const values = Object.values(data).map(value => `"${value}"`).join(',');
+        const values = Object.values(data).map(value => `"${this.escapeCsvValue(value)}"`).join(',');
 
         // Write CSV string to file
         const filepath = `\"${taskPath}/${task.number}.csv\"`;
         fs.writeFileSync('data.csv', `${header}\n${values}`);
         execSync(`mv data.csv ${filepath}`);
+    }
+
+    escapeCsvValue(value) {
+        if (typeof value === 'string') {
+            return value.replace(/"/g, '""'); // Escape double quotes
+        }
+        return value;
     }
 
     async getAssignedTo(task) {

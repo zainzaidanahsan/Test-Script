@@ -181,11 +181,8 @@ class SnowArchival {
     }
 
     async getCatItemName(task) {
-        const cat = await this.conn.query(`select name, description from sc_cat_item where sys_id = '${task.a_ref_1}'`);
-        return {
-            name: cat[0]?.name || '',
-            description: cat[0]?.description || ''
-        };
+        const cat = await this.conn.query(`select name from sc_cat_item where sys_id = '${task.a_ref_1}'`);
+        return cat[0]?.name || '';
     }
     
 

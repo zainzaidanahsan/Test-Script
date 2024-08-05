@@ -105,7 +105,7 @@ class SnowArchival {
     
         const assignedTo = await this.getAssignedTo(task);
     
-        const catItem = await this.getCatItemName(task); // Mengambil objek catItem
+        const catItemName = await this.getCatItemName(task); // Tetap mengambil nama item
     
         const reference = await this.getReference(task);
     
@@ -127,8 +127,8 @@ class SnowArchival {
             'Region': task.a_str_27,
             'Priority': task.priority,
             'Source': task.a_str_22,
-            'Item': catItem.name, // Menggunakan catItem.name
-            'Description': catItem.description, // Menambahkan catItem.description
+            'Item': catItemName, // Tetap menggunakan catItemName
+            'Description': task.description, // Mengambil description dari task
             'Short Description': task.short_description,
             'Resolution Note': task.a_str_10,
             'Resolved': this.formatDateBeta(closedAtDate),
@@ -165,6 +165,7 @@ class SnowArchival {
         fs.writeFileSync('data.csv', `${header}\n${values}`);
         execSync(`mv data.csv ${filepath}`);
     }
+    
     
 
     escapeCsvValue(value) {

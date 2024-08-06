@@ -109,6 +109,8 @@ class SnowArchival {
     
         const reference = await this.getReference(task);
     
+        const companyCode = await this.getCompanyCode(task); // Mengambil company code dari core_company
+    
         const contexts = await this.conn.query(`select name, stage from wf_context where id = '${task.sys_id}'`);
     
         let stageName = '';
@@ -123,7 +125,7 @@ class SnowArchival {
         const data = {
             'Number': task.number,
             'Opened': task.opened_at,
-            'Company Code': task.company,
+            'Company Code': companyCode, // Menggunakan company code dari core_company
             'Region': task.a_str_27,
             'Priority': task.priority,
             'Source': task.a_str_22,
@@ -164,6 +166,13 @@ class SnowArchival {
         const filepath = `\"${taskPath}/${task.number}.csv\"`;
         fs.writeFileSync('data.csv', `${header}\n${values}`);
         execSync(`mv data.csv ${filepath}`);
+    }
+    
+    
+
+    async getCompanyCode(task) {
+        const company = await this.conn.query(`select u_company_code from core_company where sys_id = '${task.company}'`);
+        return company[0]?.u_company_code || '';
     }
     
     

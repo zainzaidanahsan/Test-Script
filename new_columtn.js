@@ -104,12 +104,10 @@ class SnowArchival {
         const commentsAndWorkNotes = journals.map(this.constructJournal).join('\n');
     
         const assignedTo = await this.getAssignedTo(task);
-    
-        const catItemName = await this.getCatItemName(task); // Tetap mengambil nama item
-    
+        const catItemName = await this.getCatItemName(task);
         const reference = await this.getReference(task);
-    
-        const companyCode = await this.getCompanyCode(task); // Mengambil company code dari core_company
+        const companyCode = await this.getCompanyCode(task);
+        const requestType = await this.getRequestType(task); // Ambil request_type
     
         const contexts = await this.conn.query(`select name, stage from wf_context where id = '${task.sys_id}'`);
     
@@ -125,12 +123,12 @@ class SnowArchival {
         const data = {
             'Number': task.number,
             'Opened': task.opened_at,
-            'Company Code': companyCode, // Menggunakan company code dari core_company
+            'Company Code': companyCode,
             'Region': task.a_str_27,
             'Priority': task.priority,
             'Source': task.a_str_22,
-            'Item': catItemName, // Tetap menggunakan catItemName
-            'Description': task.description, // Mengambil description dari task
+            'Item': catItemName,
+            'Description': task.description,
             'Short Description': task.short_description,
             'Resolution Note': task.a_str_10,
             'Resolved': this.formatDateBeta(closedAtDate),
@@ -157,16 +155,18 @@ class SnowArchival {
             'Comments And Work Notes': commentsAndWorkNotes,
             'Request': task.a_str_2,
             'Sys Watch List': task.a_str_24,
+            'Request Type': requestType // Tambahkan request_type ke data
         };
     
         const header = Object.keys(data).join(',');
         const values = Object.values(data).map(value => `"${this.escapeCsvValue(value)}"`).join(',');
     
         // Write CSV string to file
-        const filepath = `\"${taskPath}/${task.number}.csv\"`;
+        const filepath = `${taskPath}/${task.number}.csv`;
         fs.writeFileSync('data.csv', `${header}\n${values}`);
         execSync(`mv data.csv ${filepath}`);
     }
+    
     
     
 
@@ -175,7 +175,10 @@ class SnowArchival {
         return company[0]?.u_company_code || '';
     }
     
-    
+    async getRequestType(task) {
+        const requestType = await this.conn.query(`SELECT request_type FROM outbound_request_usage_metrics WHERE sys_id = '${task.sys_id}'`);
+        return requestType[0]?.request_type || '';
+    }
 
     escapeCsvValue(value) {
         if (typeof value === 'string') {

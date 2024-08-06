@@ -108,6 +108,7 @@ class SnowArchival {
         const reference = await this.getReference(task);
         const companyCode = await this.getCompanyCode(task);
         const requestType = await this.getRequestType(task); // Ambil request_type
+        const vendorTypeName = await this.getVendorTypeName(task); // Ambil name dari vendor_type
     
         const contexts = await this.conn.query(`select name, stage from wf_context where id = '${task.sys_id}'`);
     
@@ -155,7 +156,9 @@ class SnowArchival {
             'Comments And Work Notes': commentsAndWorkNotes,
             'Request': task.a_str_2,
             'Sys Watch List': task.a_str_24,
-            'Request Type': requestType // Tambahkan request_type ke data
+            'Request Type': requestType, // Tambahkan request_type ke data
+            'Vendor Type': vendorTypeName // Include vendor_type in data
+
         };
     
         const header = Object.keys(data).join(',');
@@ -167,8 +170,10 @@ class SnowArchival {
         execSync(`mv data.csv ${filepath}`);
     }
     
-    
-    
+    async getVendorTypeName(task) {
+        const vendorType = await this.conn.query(`SELECT name FROM vendor_type WHERE sys_id = '${task.vendor_type}'`);
+        return vendorType[0]?.name || '';
+    }
 
     async getCompanyCode(task) {
         const company = await this.conn.query(`select u_company_code from core_company where sys_id = '${task.company}'`);

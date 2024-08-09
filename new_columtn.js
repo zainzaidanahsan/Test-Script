@@ -107,8 +107,6 @@ class SnowArchival {
         const catItemName = await this.getCatItemName(task);
         const reference = await this.getReference(task);
         const companyCode = await this.getCompanyCode(task);
-        const requestType = await this.getRequestType(task); // Ambil request_type
-        const vendorTypeName = await this.getVendorTypeName(task); // Ambil name dari vendor_type
     
         const contexts = await this.conn.query(`select name, stage from wf_context where id = '${task.sys_id}'`);
     
@@ -129,14 +127,12 @@ class SnowArchival {
             'Priority': task.priority,
             'Source': task.a_str_22,
             'Item': catItemName,
-            'Description': task.description,
             'Short Description': task.short_description,
             'Resolution Note': task.a_str_10,
             'Resolved': this.formatDateBeta(closedAtDate),
             'Closed': this.formatDateBeta(closedAtDate),
             'Stage': stageName,
             'State': task.state,
-            'Assignment Group': task.assignment_group,
             'PMI Generic Mailbox': task.a_str_23,
             'Email TO Recipients': task.a_str_25,
             'Email CC Recipients': task.a_str_24,
@@ -147,7 +143,6 @@ class SnowArchival {
             'Resolved By': assignedTo,
             'Contact Person': task.a_str_28,
             'Approval': task.approval,
-            'Approval Attachment': '',
             'Approval Request': task.a_str_11,
             'Approval Set': task.approval_set,
             'Reassignment Count': task.reassignment_count,
@@ -155,10 +150,7 @@ class SnowArchival {
             'Reopening Count': '',
             'Comments And Work Notes': commentsAndWorkNotes,
             'Request': task.a_str_2,
-            'Sys Watch List': task.a_str_24,
-            'Request Type': requestType, // Tambahkan request_type ke data
-            'Vendor Type': vendorTypeName // Include vendor_type in data
-
+            'Sys Watch List': task.a_str_24
         };
     
         const header = Object.keys(data).join(',');
@@ -168,21 +160,6 @@ class SnowArchival {
         const filepath = `${taskPath}/${task.number}.csv`;
         fs.writeFileSync('data.csv', `${header}\n${values}`);
         execSync(`mv data.csv ${filepath}`);
-    }
-    
-    async getVendorTypeName(task) {
-        const vendorType = await this.conn.query(`SELECT name FROM vendor_type WHERE sys_id = '${task.vendor_type}'`);
-        return vendorType[0]?.name || '';
-    }
-
-    async getCompanyCode(task) {
-        const company = await this.conn.query(`select u_company_code from core_company where sys_id = '${task.company}'`);
-        return company[0]?.u_company_code || '';
-    }
-    
-    async getRequestType(task) {
-        const requestType = await this.conn.query(`SELECT request_type FROM outbound_request_usage_metrics WHERE sys_id = '${task.sys_id}'`);
-        return requestType[0]?.request_type || '';
     }
 
     escapeCsvValue(value) {

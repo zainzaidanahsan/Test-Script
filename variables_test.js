@@ -172,11 +172,11 @@ class SnowArchival {
 
     async getRequestSubjectAndExplainRequest(task) {
         const query = `
-            SELECT scio.value as value, scio.sc_item_option as option_sys_id
-            FROM sc_item_option_mtom siom
-            JOIN sc_item_option scio ON siom.sc_item_option = scio.sys_id
-            WHERE siom.request_item = '${task.sys_id}'
-            AND scio.sc_item_option IN (
+            SELECT value as value, sc_item_option as option_sys_id
+            FROM sc_item_option_mtom 
+            JOIN sc_item_option scio ON sc_item_option = sys_id
+            WHERE request_item = '${task.sys_id}'
+            AND sc_item_option IN (
                 SELECT sys_id FROM sc_item_option WHERE item_option_new IN ('request_subject', 'explain_request')
             );
         `;

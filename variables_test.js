@@ -172,7 +172,7 @@ class SnowArchival {
 
     async getRequestSubjectAndExplainRequest(task) {
         const query = `
-            SELECT sio.value as value, sciv.question_text as question
+            SELECT sciv.display_value as value, sciv.question_text as question
             FROM sc_item_option_mtom sio
             JOIN sc_item_option sciv ON sio.sc_item_option = sciv.sys_id
             WHERE sio.sc_req_item = '${task.sys_id}'
@@ -191,6 +191,7 @@ class SnowArchival {
     
         return data;
     }
+    
 
     async getCompanyCode(task) {
         const company = await this.conn.query(`select u_company_code from core_company where sys_id = '${task.company}'`);

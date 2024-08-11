@@ -92,12 +92,67 @@ class SnowArchival {
                     execSync(`mkdir -p ${taskPath}`);
                     await this.extractCsv(task, taskPath);
                     await this.extractAttachments(task, taskPath);
+
+                    // New: Extract Variables, Send JSON, and Attach Payload
+                    await this.extractVariablesAndPost(task);
+
                 } catch (err) {
                     console.error(`sys_id: ${task.sys_id}, task_number: ${task.number}, err:`, err);
                 }
             }
         }
     }
+
+       // Method to extract variables, send JSON, and attach payload
+       async extractVariablesAndPost(task) {
+        const variablesArr = [];
+        const jsonObj = {};
+
+        // Extract Variables from Variable Sets
+        const grVar1 = await this.conn.query(`SELECT variable_set FROM io_set_item WHERE sc_cat_item = ?`, [task.cat_item]);
+        for (let i = 0; i < grVar1.length; i++) {
+            const grVar2 = await this.conn.query(`SELECT name FROM item_option_new WHERE variable_set = ?`, [grVar1[i].variable_set]);
+            for (let j = 0; j < grVar2.length; j++) {
+                variablesArr.push(grVar2[j].name);
+            }
+        }
+
+        // Extract Variables directly from Catalog Item
+        const grItem = await this.conn.query(`SELECT name FROM item_option_new WHERE cat_item = ?`, [task.cat_item]);
+        for (let i = 0; i < grItem.length; i++) {
+            variablesArr.push(grItem[i].name);
+        }
+
+        // Build JSON Object with Variables
+        for (let i = 0; i < variablesArr.length; i++) {
+            const variableName = variablesArr[i];
+            jsonObj[variableName] = task.variables[variableName] ? task.variables[variableName].toString() : '';
+        }
+
+        // Send JSON to the Endpoint
+        const axios = require('axios');
+        try {
+            const response = await axios.post('Endpoint', jsonObj, {
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'x-api-key': 'api_key'
+                }
+            });
+
+            const responseBody = response.data;
+            const httpStatus = response.status;
+
+            // Attach Payload to RITM
+            const ResponseBody = JSON.stringify(jsonObj);
+            const attachmentContent = `RequestBody:\n\n${ResponseBody}\n\nResponseBody:\n\n${JSON.stringify(responseBody)}\n\nStatus Code:${httpStatus}`;
+            fs.writeFileSync(`${taskPath}/Payload.txt`, attachmentContent);
+
+        } catch (error) {
+            console.error(`Failed to post JSON for sys_id: ${task.sys_id}, error:`, error);
+        }
+    }
+
 
     async extractCsv(task, taskPath) {
         const journals = await this.conn.query(`select * from sys_journal_field where element in ('work_notes', 'comments') and element_id = '${task.sys_id}' order by sys_created_on;`);
@@ -167,31 +222,6 @@ class SnowArchival {
         const filepath = `${taskPath}/${task.number}.csv`;
         fs.writeFileSync('data.csv', `${header}\n${values}`);
         execSync(`mv data.csv ${filepath}`);
-    }
-    
-
-    async getRequestSubjectAndExplainRequest(task) {
-        const query = `
-            SELECT value as value, sc_item_option as option_sys_id
-            FROM sc_item_option_mtom 
-            JOIN sc_item_option scio ON sc_item_option = sys_id
-            WHERE request_item = '${task.sys_id}'
-            AND sc_item_option IN (
-                SELECT sys_id FROM sc_item_option WHERE item_option_new IN ('request_subject', 'explain_request')
-            );
-        `;
-        const results = await this.conn.query(query);
-        const data = {};
-    
-        results.forEach(row => {
-            if (row.option_sys_id === 'request_subject_sys_id') {
-                data.request_subject = row.value;
-            } else if (row.option_sys_id === 'explain_request_sys_id') {
-                data.explain_request = row.value;
-            }
-        });
-    
-        return data;
     }
     
     

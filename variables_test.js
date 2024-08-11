@@ -211,8 +211,6 @@ class SnowArchival {
             'Comments And Work Notes': commentsAndWorkNotes,
             'Request': task.a_str_2,
             'Sys Watch List': task.a_str_24,
-            'Request Subject': requestSubject,
-            'Explain Request': explainRequest,
         };
     
         const header = Object.keys(data).join(',');

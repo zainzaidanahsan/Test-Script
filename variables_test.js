@@ -172,11 +172,11 @@ class SnowArchival {
 
     async getRequestSubjectAndExplainRequest(task) {
         const query = `
-            SELECT sciv.display_value as value, sciv.question_text as question
+            SELECT sciv.value as value, sciv.question_text as question
             FROM sc_item_option_mtom sio
             JOIN sc_item_option sciv ON sio.sc_item_option = sciv.sys_id
             WHERE sio.sc_req_item = '${task.sys_id}'
-            AND sciv.name IN ('request_subject', 'explain_request');
+            AND sciv.item_option_new IN ('request_subject', 'explain_request');
         `;
         const results = await this.conn.query(query);
         const data = {};
@@ -191,6 +191,7 @@ class SnowArchival {
     
         return data;
     }
+    
     
 
     async getCompanyCode(task) {

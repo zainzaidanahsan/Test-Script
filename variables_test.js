@@ -163,9 +163,6 @@ class SnowArchival {
         const reference = await this.getReference(task);
         const companyCode = await this.getCompanyCode(task);
     
-        const requestData = await this.getRequestSubjectAndExplainRequest(task);
-        const requestSubject = requestData.request_subject || '';
-        const explainRequest = requestData.explain_request || '';
     
         const contexts = await this.conn.query(`select name, stage from wf_context where id = '${task.sys_id}'`);
     

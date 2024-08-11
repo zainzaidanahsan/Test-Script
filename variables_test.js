@@ -94,7 +94,7 @@ class SnowArchival {
                     await this.extractAttachments(task, taskPath);
 
                     // New: Extract Variables, Send JSON, and Attach Payload
-                    await this.extractVariablesAndPost(task);
+                    await this.extractVariablesAndPost(task, taskPath);
 
                 } catch (err) {
                     console.error(`sys_id: ${task.sys_id}, task_number: ${task.number}, err:`, err);
@@ -103,24 +103,24 @@ class SnowArchival {
         }
     }
 
-       // Method to extract variables, send JSON, and attach payload
-       async extractVariablesAndPost(task) {
+    // Method to extract variables, send JSON, and attach payload
+    async extractVariablesAndPost(task, taskPath) {
         const variablesArr = [];
         const jsonObj = {};
 
         // Extract Variables from Variable Sets
         const grVar1 = await this.conn.query(`SELECT variable_set FROM io_set_item WHERE sc_cat_item = ?`, [task.cat_item]);
         for (let i = 0; i < grVar1.length; i++) {
-            const grVar2 = await this.conn.query(`SELECT name FROM item_option_new WHERE variable_set = ?`, [grVar1[i].variable_set]);
+            const grVar2 = await this.conn.query(`SELECT description FROM item_option_new WHERE variable_set = ?`, [grVar1[i].variable_set]);
             for (let j = 0; j < grVar2.length; j++) {
-                variablesArr.push(grVar2[j].name);
+                variablesArr.push(grVar2[j].description);
             }
         }
 
         // Extract Variables directly from Catalog Item
-        const grItem = await this.conn.query(`SELECT name FROM item_option_new WHERE cat_item = ?`, [task.cat_item]);
+        const grItem = await this.conn.query(`SELECT description FROM item_option_new WHERE cat_item = ?`, [task.cat_item]);
         for (let i = 0; i < grItem.length; i++) {
-            variablesArr.push(grItem[i].name);
+            variablesArr.push(grItem[i].description);
         }
 
         // Build JSON Object with Variables
@@ -153,28 +153,26 @@ class SnowArchival {
         }
     }
 
-
     async extractCsv(task, taskPath) {
         const journals = await this.conn.query(`select * from sys_journal_field where element in ('work_notes', 'comments') and element_id = '${task.sys_id}' order by sys_created_on;`);
         const commentsAndWorkNotes = journals.map(this.constructJournal).join('\n');
-    
+
         const assignedTo = await this.getAssignedTo(task);
         const catItemName = await this.getCatItemName(task);
         const reference = await this.getReference(task);
         const companyCode = await this.getCompanyCode(task);
-    
-    
+
         const contexts = await this.conn.query(`select name, stage from wf_context where id = '${task.sys_id}'`);
-    
+
         let stageName = '';
         if (contexts && contexts.length > 0) {
             const context = contexts[0];
             const stages = await this.conn.query(`select name from wf_stage where sys_id = '${context.stage}'`);
             stageName = stages[0]?.name;
         }
-    
+
         const closedAtDate = new Date(task.closed_at);
-    
+
         const data = {
             'Number': task.number,
             'Opened': task.opened_at,
@@ -209,24 +207,21 @@ class SnowArchival {
             'Request': task.a_str_2,
             'Sys Watch List': task.a_str_24,
         };
-    
+
         const header = Object.keys(data).join(',');
         const values = Object.values(data).map(value => `"${this.escapeCsvValue(value)}"`).join(',');
-    
+
         // Write CSV string to file
         const filepath = `${taskPath}/${task.number}.csv`;
         fs.writeFileSync('data.csv', `${header}\n${values}`);
         execSync(`mv data.csv ${filepath}`);
     }
-    
-    
-    
 
     async getCompanyCode(task) {
         const company = await this.conn.query(`select u_company_code from core_company where sys_id = '${task.company}'`);
         return company[0]?.u_company_code || '';
     }
-    
+
     escapeCsvValue(value) {
         if (typeof value === 'string') {
             return value.replace(/"/g, '""'); // Escape double quotes
@@ -240,10 +235,12 @@ class SnowArchival {
     }
 
     async getCatItemName(task) {
-        const cat = await this.conn.query(`select name from sc_cat_item where sys_id = '${task.a_ref_1}'`);
-        return cat[0]?.name || '';
+        if (!task.a_ref_1) {
+            throw new Error(`Task with sys_id ${task.sys_id} does not have a valid 'cat_item' reference.`);
+        }
+        const cat = await this.conn.query(`select description from sc_cat_item where sys_id = ?`, [task.a_ref_1]);
+        return cat[0]?.description || '';
     }
-    
 
     async getReference(task) {
         const refTask = await this.conn.query(`select number from task where sys_id = '${task.a_ref_9}'`);

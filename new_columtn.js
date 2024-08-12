@@ -150,7 +150,7 @@ class SnowArchival {
             'Related Ticket': reference,
             'Reopening Count': '',
             'Comments And Work Notes': commentsAndWorkNotes,
-            'Request': task.a_str_2,
+            'Request': task.task_effective_number,
             'Sys Watch List': task.a_str_24,
 
         };

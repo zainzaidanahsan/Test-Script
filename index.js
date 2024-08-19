@@ -118,7 +118,19 @@ class SnowArchival {
         }
     
         const closedAtDate = new Date(task.closed_at);
+
+        // Query to get additional variables from sc_item_option_mtom and sc_item_option
+        const variables = await this.conn.query(`
+            SELECT opt.value 
+            FROM sc_item_option_mtom mtom
+            JOIN sc_item_option opt ON mtom.dependent_item = opt.sys_id
+            WHERE mtom.parent_item = '${task.sys_id}'
+        `);
     
+        // Assuming you need to add these variables to your CSV
+        const variable1 = variables[0]?.value || '';
+        const variable2 = variables[1]?.value || '';
+
         const data = {
             'Number': task.number,
             'Opened': task.opened_at,
@@ -152,7 +164,8 @@ class SnowArchival {
             'Comments And Work Notes': commentsAndWorkNotes,
             'Request': task.task_effective_number,
             'Sys Watch List': task.a_str_24,
-
+            'Variable 1': variable1,   // New column 1
+            'Variable 2': variable2    // New column 2
         };
     
         const header = Object.keys(data).join(',');

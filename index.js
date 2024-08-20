@@ -129,8 +129,8 @@ class SnowArchival {
         
     
         // Assuming you need to add these variables to your CSV
-        const variable1 = variables[0]?.value || '';
-        const variable2 = variables[1]?.value || '';
+        const variable1 = variables[8]?.value || '';
+        const variable2 = variables[10]?.value || '';
 
         const data = {
             'Number': task.number,
@@ -165,8 +165,8 @@ class SnowArchival {
             'Comments And Work Notes': commentsAndWorkNotes,
             'Request': task.task_effective_number,
             'Sys Watch List': task.a_str_24,
-            'Variable 1': variable1,   // New column 1
-            'Variable 2': variable2    // New column 2
+            'Request Subject': variable1,   // New column 1
+            'Explain Request': variable2    // New column 2
         };
     
         const header = Object.keys(data).join(',');

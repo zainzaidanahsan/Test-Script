@@ -123,9 +123,10 @@ class SnowArchival {
         const variables = await this.conn.query(`
             SELECT opt.value 
             FROM sc_item_option_mtom mtom
-            JOIN sc_item_option opt ON mtom.dependent_item = opt.sys_id
-            WHERE mtom.parent_item = '${task.sys_id}'
+            JOIN sc_item_option opt ON mtom.sc_item_option = opt.sys_id
+            WHERE mtom.request_item = '${task.sys_id}'
         `);
+        
     
         // Assuming you need to add these variables to your CSV
         const variable1 = variables[0]?.value || '';

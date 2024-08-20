@@ -119,7 +119,6 @@ class SnowArchival {
     
         const closedAtDate = new Date(task.closed_at);
 
-        // Query to get additional variables from sc_item_option_mtom and sc_item_option
         const variables = await this.conn.query(`
             SELECT opt.value 
             FROM sc_item_option_mtom mtom
@@ -127,9 +126,7 @@ class SnowArchival {
             WHERE mtom.request_item = '${task.sys_id}'
         `);
         
-    
-        // Assuming you need to add these variables to your CSV
-        const variable1 = variables[8]?.value || '';
+        const variable1 = variables[2]?.value || '';
         const variable2 = variables[10]?.value || '';
 
         const data = {
@@ -165,8 +162,8 @@ class SnowArchival {
             'Comments And Work Notes': commentsAndWorkNotes,
             'Request': task.task_effective_number,
             'Sys Watch List': task.a_str_24,
-            'Request Subject': variable1,   // New column 1
-            'Explain Request': variable2    // New column 2
+            'Request Subject': variable1,  
+            'Explain Request': variable2    
         };
     
         const header = Object.keys(data).join(',');

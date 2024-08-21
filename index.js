@@ -142,7 +142,7 @@ class SnowArchival {
             'Resolved': this.formatDateBeta(closedAtDate),
             'Closed': this.formatDateBeta(closedAtDate),
             'Stage': stageName,
-            'State': task.a_ref_1,
+            'State': task.a_ref_2,
             'PMI Generic Mailbox': task.a_str_23,
             'Email TO Recipients': task.a_str_25,
             'Email CC Recipients': task.a_str_24,

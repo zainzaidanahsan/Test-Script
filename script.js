@@ -215,7 +215,7 @@ class SnowArchival {
     }
 
     async getRequestNumber(task) { 
-        const request = await this.conn.query(`SELECT number FROM sc_request WHERE sys_id = '${task.request}'`);
+        const request = await this.conn.query(`SELECT sc_request FROM task WHERE sys_id = '${task.request}'`);
         return request[0]?.number || '';
     }
 

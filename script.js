@@ -215,9 +215,10 @@ class SnowArchival {
     }
 
     async getRequestNumber(task) { 
-        const request = await this.conn.query(`SELECT task_effective_number FROM task WHERE sys_id = '${task.request}'`);
-        return request[0]?.number || '';
+        const request = await this.conn.query(`SELECT task_effective_number FROM task WHERE sys_id = '${task.parent}'`);
+        return request[0]?.task_effective_number || '';
     }
+    
 
     constructJournal(j) {
         return `${j.sys_created_by}\n${j.sys_created_on}\n${j.value}`;

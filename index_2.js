@@ -77,9 +77,9 @@ class SnowArchival {
             let tasks = await this.getTasks(startIdx, this.batchSize);
             if (tasks.length === 0) break;
 
-            // if (startIdx === 0) {
-            //     tasks = tasks.filter(t => !this.excludedRitms.includes(t.sys_id));
-            // }
+            if (startIdx === 0) {
+                tasks = tasks.filter(t => !this.excludedRitms.includes(t.sys_id));
+            }
 
             startIdx += this.batchSize;
 
@@ -226,7 +226,7 @@ class SnowArchival {
             SELECT * 
             FROM task 
             WHERE sys_class_name = 'sc_req_item' 
-            ORDER BY sys_created_on ASC 
+            ORDER BY number ASC
             LIMIT ${limit} OFFSET ${offset};
         `);
     }

@@ -41,6 +41,29 @@ class SnowArchival {
         'ff4f94951b0ba550b3f5a6c3b24bcb76',
     ];
 
+    // includedRitms = [
+    //     'RITM1187823',
+    //     'RITM0010503',
+    //     'RITM0376153',
+    //     'RITM0556811',
+    //     'RITM1023899',
+    //     'RITM0017426',
+    //     'RITM1187691',
+    //     'RITM0376145',
+    //     'RITM0989659',
+    //     'RITM0831264',
+    //     'RITM1187787',
+    //     'RITM1187698',
+    //     'RITM0376155',
+    //     'RITM1188570',
+    //     'RITM1188451',
+    //     'RITM0010483',
+    //     'RITM1068622',
+    //     'RITM0937637',
+    //     'RITM0937756',
+    //     'RITM0019738'
+    // ];
+
     constructor(conn, resultDir, batchSize) {
         this.conn = conn;
         this.resultDir = resultDir;
@@ -194,6 +217,10 @@ class SnowArchival {
         return `${j.sys_created_by}\n${j.sys_created_on}\n${j.value}`;
     }
 
+    // async getTasks(offset, limit) {
+    //     const ritmList = this.includedRitms.map(ritm => `'${ritm}'`).join(',');
+    //     return this.conn.query(`select * from task where sys_class_name = 'sc_req_item' and number in (${ritmList}) order by number desc limit ${limit} offset ${offset};`);
+    // }
     async getTasks(offset, limit) {
         return this.conn.query(`
             SELECT * 
@@ -204,6 +231,7 @@ class SnowArchival {
         `);
     }
     
+
     async getTask(taskNumber) {
         return this.conn.query(`select * from task where number = '${taskNumber}';`);
     }
@@ -249,41 +277,56 @@ class SnowArchival {
         }
     }
 
-    decodeMultipartBase64(chunks) {
-        const base64String = chunks.map(c => Buffer.from(c, 'base64').toString('binary')).join('');
-        return Buffer.from(base64String, 'binary');
+    decodeMultipartBase64(base64Chunks) {
+        const binaryChunks = base64Chunks.map(chunk => Buffer.from(chunk, 'base64'));
+        return Buffer.concat(binaryChunks);
     }
 
-    writeCompressedFile(filepath, buffer) {
-        execSync('rm -f compressed.zip');
-        fs.writeFileSync('compressed.zip', buffer);
-
-        execSync(`unzip -p compressed.zip > ${filepath}`);
+    writeCompressedFile(filepath, buf) {
+        try { execSync('rm tmp', { stdio: [] })} catch (e) {};
+        fs.writeFileSync('tmp.gz', buf);
+        execSync(`gzip -d tmp.gz && mv tmp ${filepath}`);
     }
 
-    writeFile(filepath, buffer) {
-        fs.writeFileSync(filepath, buffer);
-    }
-
-    getGroupPath(tasks) {
-        const batchMinNumber = tasks[0].number;
-        const batchMaxNumber = tasks[tasks.length - 1].number;
-
-        const groupPath = `${this.resultDir}/batch-${batchMinNumber}-to-${batchMaxNumber}`;
-        return groupPath;
+    writeFile(filepath, buf) {
+        fs.writeFileSync(filepath, buf);
     }
 
     getTaskPath(groupPath, task) {
-        return `${groupPath}/${task.number}`;
+        return `${groupPath}/${task.number}_${this.formatDateWithTime(task.sys_created_on)}`;
+    }
+
+    getGroupPath(tasks) {
+        const startTask = tasks[0];
+        const endTask = tasks[tasks.length - 1];
+        return `${this.resultDir}/${startTask.number}-${endTask.number}_${this.formatDate(startTask.sys_created_on)}_${this.formatDate(endTask.sys_created_on)}`;
     }
 
     formatDateBeta(date) {
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
         const year = date.getFullYear();
-        const month = `${date.getMonth() + 1}`.padStart(2, '0');
-        const day = `${date.getDate()}`.padStart(2, '0');
-        const hours = `${date.getHours()}`.padStart(2, '0');
-        const minutes = `${date.getMinutes()}`.padStart(2, '0');
-        return `${year}-${month}-${day} ${hours}:${minutes}`;
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${day}/${month}/${year} ${hours}:${minutes}`;
+    }
+
+    formatDate(date) {
+        const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = months[date.getMonth()];
+        const year = date.getFullYear();
+        return `${day}${month}${year}`;
+    }
+
+    formatDateWithTime(date) {
+        const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = months[date.getMonth()];
+        const year = date.getFullYear();
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${day}${month}${year}_${hours}${minutes}`;
     }
 }
 

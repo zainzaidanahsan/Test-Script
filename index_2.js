@@ -270,6 +270,11 @@ class SnowArchival {
 
         const attachmentFilePath = `\"${taskPath}/${meta.file_name}\"`;
 
+        const dirPath = path.dirname(attachmentFilePath);
+        if (!fs.existsSync(dirPath)) {
+            fs.mkdirSync(dirPath, { recursive: true });
+        }
+
         if (meta.compressed > 0) {
             this.writeCompressedFile(attachmentFilePath, concatenatedBuffer);
         } else {

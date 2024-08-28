@@ -133,8 +133,8 @@ class SnowArchival {
             WHERE mtom.request_item = '${task.sys_id}'
         `);
         
-        const requestSubject = variables.find(v => v.item_option_new === 'Request Subject')?.value || '';
-        const explainRequest = variables.find(v => v.item_option_new === 'Explain Request')?.value || '';
+        const requestSubject = variables.find(v => v.value === 'Request Subject')?.value || '';
+        const explainRequest = variables.find(v => v.value === 'Explain Request')?.value || '';
         
         
         const variable1 = variables[2]?.value || '';

@@ -119,12 +119,23 @@ class SnowArchival {
     
         const closedAtDate = new Date(task.closed_at);
 
+        // const variables = await this.conn.query(`
+        //     SELECT opt.value 
+        //     FROM sc_item_option_mtom mtom
+        //     JOIN sc_item_option opt ON mtom.sc_item_option = opt.sys_id
+        //     WHERE mtom.request_item = '${task.sys_id}'
+        // `);
+
         const variables = await this.conn.query(`
-            SELECT opt.value 
+            SELECT opt.value, opt.item_option_new 
             FROM sc_item_option_mtom mtom
             JOIN sc_item_option opt ON mtom.sc_item_option = opt.sys_id
             WHERE mtom.request_item = '${task.sys_id}'
         `);
+        
+        const requestSubject = variables.find(v => v.item_option_new === 'Request Subject')?.value || '';
+        const explainRequest = variables.find(v => v.item_option_new === 'Explain Request')?.value || '';
+        
         
         const variable1 = variables[2]?.value || '';
         const variable2 = variables[10]?.value || '';
@@ -162,8 +173,8 @@ class SnowArchival {
             'Comments And Work Notes': commentsAndWorkNotes,
             'Request': task.task_effective_number,
             'Sys Watch List': task.a_str_24,
-            'Request Subject': variable1,  
-            'Explain Request': variable2    
+            'Request Subject': requestSubject,  
+            'Explain Request': explainRequest    
         };
     
         const header = Object.keys(data).join(',');

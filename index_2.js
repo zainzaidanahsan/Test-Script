@@ -127,14 +127,17 @@ class SnowArchival {
         // `);
 
         const variables = await this.conn.query(`
-            SELECT opt.value, opt.item_option_new 
+            SELECT opt.value, it.option_name 
             FROM sc_item_option_mtom mtom
             JOIN sc_item_option opt ON mtom.sc_item_option = opt.sys_id
+            JOIN item_option_new it ON opt.item_option_new = it.sys_id
             WHERE mtom.request_item = '${task.sys_id}'
         `);
         
-        const requestSubject = variables.find(v => v.value === 'Request Subject')?.value || '';
-        const explainRequest = variables.find(v => v.value === 'Explain Request')?.value || '';
+        
+        const requestSubject = variables.find(v => v.option_name.includes('Request Subject'))?.value || '';
+        const explainRequest = variables.find(v => v.option_name.includes('Explain Request'))?.value || '';
+
         
         
         const variable1 = variables[2]?.value || '';

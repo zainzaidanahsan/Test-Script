@@ -126,26 +126,6 @@ class SnowArchival {
         //     WHERE mtom.request_item = '${task.sys_id}'
         // `);
 
-        // const variables = await this.conn.query(`
-        //     SELECT 
-        //         sc_cat_item_option.name AS variable_name, 
-        //         sc_item_option.value AS variable_value 
-        //     FROM 
-        //         sc_item_option_mtom 
-        //     JOIN 
-        //         sc_item_option ON sc_item_option_mtom.sc_item_option = sc_item_option.sys_id 
-        //     JOIN 
-        //         sc_cat_item_option ON sc_item_option.sc_cat_item_option = sc_cat_item_option.sys_id 
-        //     WHERE 
-        //         sc_item_option_mtom.request_item = '${task.sys_id}' 
-        //     AND 
-        //         (sc_cat_item_option.name = 'Request Subject' OR sc_cat_item_option.name = 'Explain Request')
-        // `);
-        
-        // const requestSubject = variables.find(v => v.variable_name === 'Request Subject')?.variable_value || '';
-        // const explainRequest = variables.find(v => v.variable_name === 'Explain Request')?.variable_value || '';
-        
-
         const variables = await this.conn.query(`
             SELECT 
                 sc_cat_item_option.name AS variable_name, 
@@ -164,11 +144,12 @@ class SnowArchival {
         
         const requestSubject = variables.find(v => v.variable_name === 'Request Subject')?.variable_value || '';
         const explainRequest = variables.find(v => v.variable_name === 'Explain Request')?.variable_value || '';
+        
 
         
         
-        // const requestSubject = variables[2]?.value || '';
-        // const explainRequest = variables[10]?.value || '';
+        const variable1 = variables[2]?.value || '';
+        const variable2 = variables[10]?.value || '';
 
         const data = {
             'Number': task.number,

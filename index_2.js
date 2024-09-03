@@ -174,35 +174,38 @@ class SnowArchival {
         // const requestSubject = variables[2]?.value || '';
         // const explainRequest = variables[10]?.value || '';
 
-        const variables = await this.conn.query(`
-            SELECT value
-            FROM sc_item_option_mtom mtom
-            JOIN sc_item_option opt ON mtom.sc_item_option = opt.sys_id
-            WHERE mtom.request_item = '${task.sys_id}'
-        `);
-        
-        let requestSubject = '';
-        let explainRequest = '';
-        
-        // Loop untuk memeriksa setiap elemen
-        for (let i = 0; i < variables.length; i++) {
-            const value = variables[i].value;
-        
-            // Pastikan value tidak null atau undefined sebelum menggunakan includes
-            if (value && value.includes('Request Subject')) {
-                requestSubject = value;
-            } else if (value && value.includes('Explain Request')) {
-                explainRequest = value;
-            }
-        
-            // Berhenti jika kedua field sudah ditemukan
-            if (requestSubject && explainRequest) {
-                break;
-            }
-        }
-        
-        console.log('Request Subject:', requestSubject);
-        console.log('Explain Request:', explainRequest);
+// Ambil variabel dengan nama 'Request Subject' dan 'Explain Request'
+const variables = await this.conn.query(`
+    SELECT 
+        sc_cat_item_option.name AS variable_name, 
+        sc_item_option.value AS variable_value
+    FROM 
+        sc_item_option_mtom 
+    JOIN 
+        sc_item_option ON sc_item_option_mtom.sc_item_option = sc_item_option.sys_id
+    JOIN 
+        sc_cat_item_option ON sc_item_option.sc_cat_item_option = sc_cat_item_option.sys_id
+    WHERE 
+        sc_item_option_mtom.request_item = '${task.sys_id}'
+        AND (sc_cat_item_option.name = 'Request Subject' 
+             OR sc_cat_item_option.name = 'Explain Request')
+`);
+
+// Memproses variabel untuk mendapatkan nilai yang sesuai
+let requestSubject = '';
+let explainRequest = '';
+
+for (const variable of variables) {
+    if (variable.variable_name === 'Request Subject') {
+        requestSubject = variable.variable_value;
+    } else if (variable.variable_name === 'Explain Request') {
+        explainRequest = variable.variable_value;
+    }
+}
+
+console.log('Request Subject:', requestSubject);
+console.log('Explain Request:', explainRequest);
+
         
         
         const data = {

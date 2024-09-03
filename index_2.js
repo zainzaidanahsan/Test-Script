@@ -191,7 +191,7 @@ class SnowArchival {
             WHERE 
                 sc_item_option_mtom.request_item = '${task.sys_id}'
             AND 
-                (sc_cat_item_option.name = 'Request Subject' OR sc_cat_item_option.name = 'Explain Request');
+                (sc_cat_item_option.name = 'request_subject' OR sc_cat_item_option.name = 'please_explain_your_request');
         `);
         
         let requestSubject = '';
@@ -202,9 +202,9 @@ class SnowArchival {
             // Loop untuk memeriksa setiap elemen
             for (let i = 0; i < variables.length; i++) {
                 // Cek apakah nilai `question` cocok dengan "Request Subject" atau "Explain Request"
-                if (variables[i].question === 'Request Subject') {
+                if (variables[i].question === 'request_subject') {
                     requestSubject = variables[i].variable_value;
-                } else if (variables[i].question === 'Explain Request') {
+                } else if (variables[i].question === 'please_explain_your_request') {
                     explainRequest = variables[i].variable_value;
                 }
         

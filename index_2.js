@@ -163,8 +163,8 @@ class SnowArchival {
                 (sc_cat_item_option.name = 'Request Subject' OR sc_cat_item_option.name = 'Explain Request')
         `);
         
-        const requestSubject = variables.find(v => v.variable_name === 'Request Subject')?.variable_value || '';
-        const explainRequest = variables.find(v => v.variable_name === 'Explain Request')?.variable_value || '';
+        const requestSubject = variables.find(v => v.variable_name === 'request_subject')?.variable_value || '';
+        const explainRequest = variables.find(v => v.variable_name === 'please_explain_your_request')?.variable_value || '';
 
         
         

@@ -174,36 +174,32 @@ class SnowArchival {
         // const requestSubject = variables[2]?.value || '';
         // const explainRequest = variables[10]?.value || '';
 
-        // Menjalankan query untuk mendapatkan variabel dari ServiceNow
-const variables = await this.conn.query(`
-    SELECT opt.value 
-    FROM sc_item_option_mtom mtom
-    JOIN sc_item_option opt ON mtom.sc_item_option = opt.sys_id
-    WHERE mtom.request_item = '${task.sys_id}'
-`);
-
-let requestSubject = '';
-let explainRequest = '';
-
-// Loop untuk memeriksa setiap elemen
-for (let i = 0; i < variables.length; i++) {
-    // Misalnya, menggunakan pola tertentu untuk mencocokkan nilai-nilai
-    if (variables[i].value.includes('Request Subject')) {
-        requestSubject = variables[i].value;
-    } else if (variables[i].value.includes('Explain Request')) {
-        explainRequest = variables[i].value;
-    }
-
-    // Berhenti jika kedua field sudah ditemukan
-    if (requestSubject && explainRequest) {
-        break;
-    }
-}
-
-// Mencetak hasil
-console.log('Request Subject:', requestSubject);
-console.log('Explain Request:', explainRequest);
-
+        const variables = await this.conn.query(`
+            SELECT opt.value 
+            FROM sc_item_option_mtom mtom
+            JOIN sc_item_option opt ON mtom.sc_item_option = opt.sys_id
+            WHERE mtom.request_item = '${task.sys_id}'
+        `);
+        
+        let requestSubject = '';
+        let explainRequest = '';
+        
+        // Loop untuk memeriksa setiap elemen
+        for (let i = 0; i < variables.length; i++) {
+            if (variables[i].value === 'Request Subject') {
+                requestSubject = variables[i].value;
+            } else if (variables[i].value === 'Explain Request') {
+                explainRequest = variables[i].value;
+            }
+        
+            // Berhenti jika kedua field sudah ditemukan
+            if (requestSubject && explainRequest) {
+                break;
+            }
+        }
+        
+        console.log('Request Subject:', requestSubject);
+        console.log('Explain Request:', explainRequest);
         
         const data = {
             'Number': task.number,

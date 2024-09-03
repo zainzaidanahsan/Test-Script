@@ -195,9 +195,10 @@ class SnowArchival {
         if (variables.length > 0) {
             // Loop untuk memeriksa setiap elemen
             for (let i = 0; i < variables.length; i++) {
-                if (variables[i].value.includes('Request Subject')) {
+                // Cek apakah nilai `value` tidak `null` atau `undefined` sebelum memanggil `includes`
+                if (variables[i].value && variables[i].value.includes('Request Subject')) {
                     requestSubject = variables[i].value;
-                } else if (variables[i].value.includes('Explain Request')) {
+                } else if (variables[i].value && variables[i].value.includes('Explain Request')) {
                     explainRequest = variables[i].value;
                 }
         
@@ -215,6 +216,7 @@ class SnowArchival {
         
         console.log('Request Subject:', requestSubject);
         console.log('Explain Request:', explainRequest);
+        
         
         
         const data = {

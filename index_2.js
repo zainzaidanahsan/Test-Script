@@ -175,7 +175,7 @@ class SnowArchival {
         // const explainRequest = variables[10]?.value || '';
 
         const variables = await this.conn.query(`
-            SELECT opt.name, opt.value 
+            SELECT sc_cat_item_option.name AS variable_name, opt.value 
             FROM sc_item_option_mtom mtom
             JOIN sc_item_option opt ON mtom.sc_item_option = opt.sys_id
             WHERE mtom.request_item = '${task.sys_id}'

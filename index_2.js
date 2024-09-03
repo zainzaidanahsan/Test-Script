@@ -186,10 +186,13 @@ class SnowArchival {
         
         // Loop untuk memeriksa setiap elemen
         for (let i = 0; i < variables.length; i++) {
-            if (variables[i].value.includes('Request Subject')) {
-                requestSubject = variables[i].value;
-            } else if (variables[i].value.includes('Explain Request')) {
-                explainRequest = variables[i].value;
+            const value = variables[i].value;
+        
+            // Pastikan value tidak null atau undefined sebelum menggunakan includes
+            if (value && value.includes('Request Subject')) {
+                requestSubject = value;
+            } else if (value && value.includes('Explain Request')) {
+                explainRequest = value;
             }
         
             // Berhenti jika kedua field sudah ditemukan

@@ -149,22 +149,19 @@ class SnowArchival {
 
         const variables = await this.conn.query(`
             SELECT 
-                options.question AS variable_name, 
-                options.value AS variable_value 
+                sc_cat_item_option.name AS variable_name, 
+                sc_item_option.value AS variable_value 
             FROM 
-                sc_item_option_mtom AS ownership 
+                sc_item_option_mtom 
             JOIN 
-                sc_item_option AS options 
-                ON ownership.dependent_item = options.sys_id 
+                sc_item_option ON sc_item_option_mtom.sc_item_option = sc_item_option.sys_id 
             JOIN 
-                sc_req_item AS req_item 
-                ON ownership.parent_item = req_item.sys_id 
+                sc_cat_item_option ON sc_item_option.sc_cat_item_option = sc_cat_item_option.sys_id 
             WHERE 
-                req_item.number = '${task.number}' 
+                sc_item_option_mtom.request_item = '${task.sys_id}' 
             AND 
-                (options.question = 'Please explain Other' OR options.question = 'Request Subject')
+                (sc_item_option.name = 'request_subject' OR sc_item_option.name = 'please_explain_your_request')
         `);
-        
         
         const requestSubject = variables.find(v => v.variable_name === 'request_subject')?.variable_value || '';
         const explainRequest = variables.find(v => v.variable_name === 'please_explain_your_request')?.variable_value || '';

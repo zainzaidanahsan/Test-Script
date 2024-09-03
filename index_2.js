@@ -160,7 +160,7 @@ class SnowArchival {
             WHERE 
                 sc_item_option_mtom.request_item = '${task.sys_id}' 
             AND 
-                (sc_item_option.name = 'request_subject' OR sc_item_option.name = 'please_explain_your_request')
+                (sc_cat_item_option.name = 'request_subject' OR sc_cat_item_option.name = 'please_explain_your_request')
         `);
         
         const requestSubject = variables.find(v => v.variable_name === 'request_subject')?.variable_value || '';

@@ -1,5 +1,6 @@
 const fs = require('fs');
 const mariadb = require('mariadb');
+const path = require('path');
 const { execSync } = require('child_process');
 
 async function main() {

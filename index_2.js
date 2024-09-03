@@ -238,10 +238,11 @@ class SnowArchival {
         // console.log('Request Subject:', requestSubject);
         // console.log('Explain Request:', explainRequest);
 
+        // Menjalankan query untuk mendapatkan variabel dari ServiceNow
         const variables = await this.conn.query(`
             SELECT 
                 opt.value AS variable_value, 
-                opt.item_option_new AS variable_name 
+                opt.item_option_new AS item_option_name 
             FROM 
                 sc_item_option_mtom mtom
             JOIN 
@@ -251,39 +252,40 @@ class SnowArchival {
             WHERE 
                 mtom.request_item = '${task.sys_id}'
         `);
-        
+
         // Tambahkan log untuk melihat hasil query
         console.log('Query Results:', variables);
-        
+
         // Variabel untuk menyimpan hasil pencarian
         let requestSubject = '';
         let explainRequest = '';
-        
-        // Loop untuk memeriksa setiap elemen
+
+        // Loop untuk memeriksa setiap elemen berdasarkan item_option_name
         if (variables && variables.length > 0) {
             for (let i = 0; i < variables.length; i++) {
-                // Memeriksa apakah variable_name adalah "request_subject" atau "please_explain_your_request"
-                if (variables[i].variable_name === 'request_subject') {
+        // Memeriksa apakah item_option_name adalah "request_subject" atau "please_explain_your_request"
+        if (variables[i].item_option_name === 'request_subject') {
                     requestSubject = variables[i].variable_value;
-                } else if (variables[i].variable_name === 'please_explain_your_request') {
+        }else if (variables[i].item_option_name === 'please_explain_your_request') {
                     explainRequest = variables[i].variable_value;
                 }
-        
+
                 // Berhenti jika kedua field sudah ditemukan
                 if (requestSubject && explainRequest) {
                     break;
                 }
             }
         }
-        
+
         // Jika tidak ditemukan, tambahkan pesan debug untuk memeriksa query
         if (!requestSubject && !explainRequest) {
             console.log('No matching variables found for Request Subject or Explain Request.');
         }
-        
+
         // Cetak hasil
         console.log('Request Subject:', requestSubject);
         console.log('Explain Request:', explainRequest);
+
         
 
 

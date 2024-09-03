@@ -41,28 +41,28 @@ class SnowArchival {
         'ff4f94951b0ba550b3f5a6c3b24bcb76',
     ];
 
-    // includedRitms = [
-    //     'RITM1187823',
-    //     'RITM0010503',
-    //     'RITM0376153',
-    //     'RITM0556811',
-    //     'RITM1023899',
-    //     'RITM0017426',
-    //     'RITM1187691',
-    //     'RITM0376145',
-    //     'RITM0989659',
-    //     'RITM0831264',
-    //     'RITM1187787',
-    //     'RITM1187698',
-    //     'RITM0376155',
-    //     'RITM1188570',
-    //     'RITM1188451',
-    //     'RITM0010483',
-    //     'RITM1068622',
-    //     'RITM0937637',
-    //     'RITM0937756',
-    //     'RITM0019738'
-    // ];
+    includedRitms = [
+        'RITM1187823',
+        'RITM0010503',
+        'RITM0376153',
+        'RITM0556811',
+        'RITM1023899',
+        'RITM0017426',
+        'RITM1187691',
+        'RITM0376145',
+        'RITM0989659',
+        'RITM0831264',
+        'RITM1187787',
+        'RITM1187698',
+        'RITM0376155',
+        'RITM1188570',
+        'RITM1188451',
+        'RITM0010483',
+        'RITM1068622',
+        'RITM0937637',
+        'RITM0937756',
+        'RITM0019738'
+    ];
 
     constructor(conn, resultDir, batchSize) {
         this.conn = conn;
@@ -258,19 +258,20 @@ class SnowArchival {
         return `${j.sys_created_by}\n${j.sys_created_on}\n${j.value}`;
     }
 
-    // async getTasks(offset, limit) {
-    //     const ritmList = this.includedRitms.map(ritm => `'${ritm}'`).join(',');
-    //     return this.conn.query(`select * from task where sys_class_name = 'sc_req_item' and number in (${ritmList}) order by number desc limit ${limit} offset ${offset};`);
-    // }
     async getTasks(offset, limit) {
-        return this.conn.query(`
-            SELECT * 
-            FROM task 
-            WHERE sys_class_name = 'sc_req_item' 
-            ORDER BY number ASC
-            LIMIT ${limit} OFFSET ${offset};
-        `);
+        const ritmList = this.includedRitms.map(ritm => `'${ritm}'`).join(',');
+        return this.conn.query(`select * from task where sys_class_name = 'sc_req_item' and number in (${ritmList}) order by number desc limit ${limit} offset ${offset};`);
     }
+    // async getTasks(offset, limit) {
+        
+    //     return this.conn.query(`
+    //         SELECT * 
+    //         FROM task 
+    //         WHERE sys_class_name = 'sc_req_item' 
+    //         ORDER BY number ASC
+    //         LIMIT ${limit} OFFSET ${offset};
+    //     `);
+    // }
     
 
     async getTask(taskNumber) {

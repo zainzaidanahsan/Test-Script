@@ -149,31 +149,28 @@ class SnowArchival {
 
         const variables = await this.conn.query(`
             SELECT 
-                LOWER(sc_cat_item_option.name) AS variable_name, 
-                sc_item_option.value AS variable_value 
+                sc_cat_item_option.name AS variable_name, 
+                sc_item_option.value AS variable_value
             FROM 
-                sc_item_option_mtom 
+                sc_item_option_mtom
             JOIN 
-                sc_item_option ON sc_item_option_mtom.sc_item_option = sc_item_option.sys_id 
+                sc_item_option ON sc_item_option_mtom.sc_item_option = sc_item_option.sys_id
             JOIN 
-                sc_cat_item_option ON sc_item_option.sc_cat_item_option = sc_cat_item_option.sys_id 
+                sc_cat_item_option ON sc_item_option.sc_cat_item_option = sc_cat_item_option.sys_id
             WHERE 
-                sc_item_option_mtom.request_item = '${task.sys_id}' 
-            AND 
-                (LOWER(sc_cat_item_option.name) = 'request_subject' 
-                OR LOWER(sc_cat_item_option.name) = 'please_explain_your_request'
-                OR LOWER(sc_cat_item_option.name) = 'subject'  -- Tambahkan variasi penulisan jika diperlukan
-                OR LOWER(sc_cat_item_option.name) = 'explain_request'
-                )
+                sc_item_option_mtom.request_item = '${task.sys_id}'
+                AND (sc_cat_item_option.name = 'Request Subject' 
+                     OR sc_cat_item_option.name = 'Explain Request')
         `);
         
         console.log('Variables:', variables);  // Debugging output
         
-        const requestSubject = variables.find(v => v.variable_name.includes('subject'))?.variable_value || '';
-        const explainRequest = variables.find(v => v.variable_name.includes('explain'))?.variable_value || '';
+        const requestSubject = variables.find(v => v.variable_name === 'Request Subject')?.variable_value || '';
+        const explainRequest = variables.find(v => v.variable_name === 'Explain Request')?.variable_value || '';
         
         console.log('Request Subject:', requestSubject);  // Debugging output
         console.log('Explain Request:', explainRequest);  // Debugging output
+        
         
 
 

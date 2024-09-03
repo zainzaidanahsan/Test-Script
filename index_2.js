@@ -147,9 +147,9 @@ class SnowArchival {
         // const explainRequest = variables.find(v => v.variable_name === 'Explain Request')?.variable_value || '';
         
 
-        const variables = await this.conn.query(`
+        const variables = await this.conn.query(
             SELECT 
-                sc_cat_item_option.name AS variable_name, 
+                LOWER(sc_cat_item_option.name) AS variable_name, 
                 sc_item_option.value AS variable_value 
             FROM 
                 sc_item_option_mtom 
@@ -160,11 +160,14 @@ class SnowArchival {
             WHERE 
                 sc_item_option_mtom.request_item = '${task.sys_id}' 
             AND 
-                (sc_cat_item_option.name = 'request_subject' OR sc_cat_item_option.name = 'please_explain_your_request')
-        `);
+                (LOWER(sc_cat_item_option.name) = 'request_subject' OR LOWER(sc_cat_item_option.name) = 'please_explain_your_request')
+        );
         
         const requestSubject = variables.find(v => v.variable_name === 'request_subject')?.variable_value || '';
         const explainRequest = variables.find(v => v.variable_name === 'please_explain_your_request')?.variable_value || '';
+
+        console.log('Variables:', variables);
+
 
         
         

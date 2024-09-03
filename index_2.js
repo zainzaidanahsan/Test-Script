@@ -176,30 +176,36 @@ class SnowArchival {
 
         const variables = await this.conn.query(`
             SELECT 
-                opt.value, 
-                opt.sys_id 
+                sc_cat_item_option.name AS question, 
+                sc_item_option.value AS variable_value 
             FROM 
-                sc_item_option_mtom mtom
+                sc_item_option_mtom 
             JOIN 
-                sc_item_option opt 
+                sc_item_option 
             ON 
-                mtom.sc_item_option = opt.sys_id
+                sc_item_option_mtom.sc_item_option = sc_item_option.sys_id 
+            JOIN 
+                sc_cat_item_option 
+            ON 
+                sc_item_option.sc_cat_item_option = sc_cat_item_option.sys_id 
             WHERE 
-                mtom.request_item = '${task.sys_id}'
+                sc_item_option_mtom.request_item = '${task.sys_id}'
+            AND 
+                (sc_cat_item_option.name = 'Request Subject' OR sc_cat_item_option.name = 'Explain Request');
         `);
         
         let requestSubject = '';
         let explainRequest = '';
         
         // Memeriksa apakah terdapat data yang diambil dari query
-        if (variables.length > 0) {
+        if (variables && variables.length > 0) {
             // Loop untuk memeriksa setiap elemen
             for (let i = 0; i < variables.length; i++) {
-                // Cek apakah nilai `value` tidak `null` atau `undefined` sebelum memanggil `includes`
-                if (variables[i].value && variables[i].value.includes('Request Subject')) {
-                    requestSubject = variables[i].value;
-                } else if (variables[i].value && variables[i].value.includes('Explain Request')) {
-                    explainRequest = variables[i].value;
+                // Cek apakah nilai `question` cocok dengan "Request Subject" atau "Explain Request"
+                if (variables[i].question === 'Request Subject') {
+                    requestSubject = variables[i].variable_value;
+                } else if (variables[i].question === 'Explain Request') {
+                    explainRequest = variables[i].variable_value;
                 }
         
                 // Berhenti jika kedua field sudah ditemukan
@@ -216,7 +222,6 @@ class SnowArchival {
         
         console.log('Request Subject:', requestSubject);
         console.log('Explain Request:', explainRequest);
-        
         
         
         const data = {

@@ -177,7 +177,8 @@ class SnowArchival {
         const variables = await this.conn.query(`
             SELECT 
                 sc_cat_item_option.name AS question, 
-                sc_item_option.value AS variable_value 
+                sc_item_option.value AS variable_value,
+                sc_item_option.item_option_new  -- Tambahkan kolom ini untuk mengecek
             FROM 
                 sc_item_option_mtom 
             JOIN 
@@ -191,7 +192,7 @@ class SnowArchival {
             WHERE 
                 sc_item_option_mtom.request_item = '${task.sys_id}'
             AND 
-                (sc_cat_item_option.name = 'request_subject' OR sc_cat_item_option.name = 'please_explain_your_request');
+                (sc_item_option.item_option_new = 'request_subject' OR sc_item_option.item_option_new = 'please_explain_your_request');
         `);
         
         let requestSubject = '';
@@ -201,10 +202,10 @@ class SnowArchival {
         if (variables && variables.length > 0) {
             // Loop untuk memeriksa setiap elemen
             for (let i = 0; i < variables.length; i++) {
-                // Cek apakah nilai `question` cocok dengan "Request Subject" atau "Explain Request"
-                if (variables[i].question === 'request_subject') {
+                // Cek apakah nilai `item_option_new` cocok dengan "request_subject" atau "please_explain_your_request"
+                if (variables[i].item_option_new === 'request_subject') {
                     requestSubject = variables[i].variable_value;
-                } else if (variables[i].question === 'please_explain_your_request') {
+                } else if (variables[i].item_option_new === 'please_explain_your_request') {
                     explainRequest = variables[i].variable_value;
                 }
         
@@ -222,6 +223,7 @@ class SnowArchival {
         
         console.log('Request Subject:', requestSubject);
         console.log('Explain Request:', explainRequest);
+        
         
         
         const data = {

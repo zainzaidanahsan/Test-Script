@@ -147,38 +147,60 @@ class SnowArchival {
         // const explainRequest = variables.find(v => v.variable_name === 'Explain Request')?.variable_value || '';
         
 
-        const variables = await this.conn.query(`
-            SELECT 
-                sc_cat_item_option.name AS variable_name, 
-                sc_item_option.value AS variable_value
-            FROM 
-                sc_item_option_mtom
-            JOIN 
-                sc_item_option ON sc_item_option_mtom.sc_item_option = sc_item_option.sys_id
-            JOIN 
-                sc_cat_item_option ON sc_item_option.sc_cat_item_option = sc_cat_item_option.sys_id
-            WHERE 
-                sc_item_option_mtom.request_item = '${task.sys_id}'
-                AND (sc_cat_item_option.name = 'Request Subject' 
-                     OR sc_cat_item_option.name = 'Explain Request')
-        `);
+        // const variables = await this.conn.query(`
+        //     SELECT 
+        //         sc_cat_item_option.name AS variable_name, 
+        //         sc_item_option.value AS variable_value
+        //     FROM 
+        //         sc_item_option_mtom
+        //     JOIN 
+        //         sc_item_option ON sc_item_option_mtom.sc_item_option = sc_item_option.sys_id
+        //     JOIN 
+        //         sc_cat_item_option ON sc_item_option.sc_cat_item_option = sc_cat_item_option.sys_id
+        //     WHERE 
+        //         sc_item_option_mtom.request_item = '${task.sys_id}'
+        //         AND (sc_cat_item_option.name = 'Request Subject' 
+        //              OR sc_cat_item_option.name = 'Explain Request')
+        // `);
         
-        console.log('Variables:', variables);  // Debugging output
+        // console.log('Variables:', variables);  // Debugging output
         
-        const requestSubject = variables.find(v => v.variable_name === 'Request Subject')?.variable_value || '';
-        const explainRequest = variables.find(v => v.variable_name === 'Explain Request')?.variable_value || '';
+        // const requestSubject = variables.find(v => v.variable_name === 'Request Subject')?.variable_value || '';
+        // const explainRequest = variables.find(v => v.variable_name === 'Explain Request')?.variable_value || '';
         
-        console.log('Request Subject:', requestSubject);  // Debugging output
-        console.log('Explain Request:', explainRequest);  // Debugging output
-        
-        
-
-
-        
+        // console.log('Request Subject:', requestSubject);  // Debugging output
+        // console.log('Explain Request:', explainRequest);  // Debugging output
         
         // const requestSubject = variables[2]?.value || '';
         // const explainRequest = variables[10]?.value || '';
 
+        const variables = await this.conn.query(`
+            SELECT opt.name, opt.value 
+            FROM sc_item_option_mtom mtom
+            JOIN sc_item_option opt ON mtom.sc_item_option = opt.sys_id
+            WHERE mtom.request_item = '${task.sys_id}'
+        `);
+        
+        let requestSubject = '';
+        let explainRequest = '';
+        
+        // Loop untuk memeriksa setiap elemen
+        for (let i = 0; i < variables.length; i++) {
+            if (variables[i].name === 'Request Subject') {
+                requestSubject = variables[i].value;
+            } else if (variables[i].name === 'Explain Request') {
+                explainRequest = variables[i].value;
+            }
+        
+            // Berhenti jika kedua field sudah ditemukan
+            if (requestSubject && explainRequest) {
+                break;
+            }
+        }
+        
+        console.log('Request Subject:', requestSubject);
+        console.log('Explain Request:', explainRequest);
+        
         const data = {
             'Number': task.number,
             'Opened': task.opened_at,

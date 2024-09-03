@@ -160,13 +160,21 @@ class SnowArchival {
             WHERE 
                 sc_item_option_mtom.request_item = '${task.sys_id}' 
             AND 
-                (LOWER(sc_cat_item_option.name) = 'request_subject' OR LOWER(sc_cat_item_option.name) = 'please_explain_your_request')
+                (LOWER(sc_cat_item_option.name) = 'request_subject' 
+                OR LOWER(sc_cat_item_option.name) = 'please_explain_your_request'
+                OR LOWER(sc_cat_item_option.name) = 'subject'  -- Tambahkan variasi penulisan jika diperlukan
+                OR LOWER(sc_cat_item_option.name) = 'explain_request'
+                )
         `);
         
-        const requestSubject = variables.find(v => v.variable_name === 'request_subject')?.variable_value || '';
-        const explainRequest = variables.find(v => v.variable_name === 'please_explain_your_request')?.variable_value || '';
-
-        console.log('Variables:', variables);
+        console.log('Variables:', variables);  // Debugging output
+        
+        const requestSubject = variables.find(v => v.variable_name.includes('subject'))?.variable_value || '';
+        const explainRequest = variables.find(v => v.variable_name.includes('explain'))?.variable_value || '';
+        
+        console.log('Request Subject:', requestSubject);  // Debugging output
+        console.log('Explain Request:', explainRequest);  // Debugging output
+        
 
 
         

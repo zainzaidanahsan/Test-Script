@@ -175,7 +175,7 @@ class SnowArchival {
         // const explainRequest = variables[10]?.value || '';
 
         const variables = await this.conn.query(`
-            SELECT sc_cat_item_option.name AS variable_name, opt.value 
+            SELECT opt.value 
             FROM sc_item_option_mtom mtom
             JOIN sc_item_option opt ON mtom.sc_item_option = opt.sys_id
             WHERE mtom.request_item = '${task.sys_id}'
@@ -186,9 +186,9 @@ class SnowArchival {
         
         // Loop untuk memeriksa setiap elemen
         for (let i = 0; i < variables.length; i++) {
-            if (variables[i].name === 'Request Subject') {
+            if (variables[i].value === 'Request Subject') {
                 requestSubject = variables[i].value;
-            } else if (variables[i].name === 'Explain Request') {
+            } else if (variables[i].value === 'Explain Request') {
                 explainRequest = variables[i].value;
             }
         

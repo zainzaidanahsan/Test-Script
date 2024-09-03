@@ -225,18 +225,66 @@ class SnowArchival {
         // console.log('Explain Request:', explainRequest);
         
 
+        // const variables = await this.conn.query(`
+        //     SELECT opt.value 
+        //     FROM sc_item_option_mtom mtom
+        //     JOIN sc_item_option opt ON mtom.sc_item_option = opt.sys_id
+        //     WHERE mtom.request_item = '${task.sys_id}'
+        // `);
+
+	    // const requestSubject = variables[2]?.value || '';
+        // const explainRequest = variables[10]?.value || '';
+
+        // console.log('Request Subject:', requestSubject);
+        // console.log('Explain Request:', explainRequest);
+
         const variables = await this.conn.query(`
-            SELECT opt.value 
-            FROM sc_item_option_mtom mtom
-            JOIN sc_item_option opt ON mtom.sc_item_option = opt.sys_id
-            WHERE mtom.request_item = '${task.sys_id}'
+            SELECT 
+                opt.value AS variable_value, 
+                opt.item_option_new AS variable_name 
+            FROM 
+                sc_item_option_mtom mtom
+            JOIN 
+                sc_item_option opt 
+            ON 
+                mtom.sc_item_option = opt.sys_id
+            WHERE 
+                mtom.request_item = '${task.sys_id}'
         `);
-
-	    const requestSubject = variables[2]?.value || '';
-        const explainRequest = variables[10]?.value || '';
-
+        
+        // Tambahkan log untuk melihat hasil query
+        console.log('Query Results:', variables);
+        
+        // Variabel untuk menyimpan hasil pencarian
+        let requestSubject = '';
+        let explainRequest = '';
+        
+        // Loop untuk memeriksa setiap elemen
+        if (variables && variables.length > 0) {
+            for (let i = 0; i < variables.length; i++) {
+                // Memeriksa apakah variable_name adalah "request_subject" atau "please_explain_your_request"
+                if (variables[i].variable_name === 'request_subject') {
+                    requestSubject = variables[i].variable_value;
+                } else if (variables[i].variable_name === 'please_explain_your_request') {
+                    explainRequest = variables[i].variable_value;
+                }
+        
+                // Berhenti jika kedua field sudah ditemukan
+                if (requestSubject && explainRequest) {
+                    break;
+                }
+            }
+        }
+        
+        // Jika tidak ditemukan, tambahkan pesan debug untuk memeriksa query
+        if (!requestSubject && !explainRequest) {
+            console.log('No matching variables found for Request Subject or Explain Request.');
+        }
+        
+        // Cetak hasil
         console.log('Request Subject:', requestSubject);
         console.log('Explain Request:', explainRequest);
+        
 
 
         

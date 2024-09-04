@@ -192,6 +192,9 @@ class SnowArchival {
             }
         });
 
+        console.log('Request Subject:', requestSubject);
+        console.log('Explain Request:', explainRequest);
+
         // Sekarang, requestSubject dan explainRequest akan berisi nilai yang sesuai
 
         

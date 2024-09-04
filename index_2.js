@@ -239,52 +239,61 @@ class SnowArchival {
         // console.log('Explain Request:', explainRequest);
 
         // Menjalankan query untuk mendapatkan variabel dari ServiceNow
-        const variables = await this.conn.query(`
-            SELECT 
-                opt.value AS variable_value, 
-                opt.item_option_new AS item_option_name 
-            FROM 
-                sc_item_option_mtom mtom
-            JOIN 
-                sc_item_option opt 
-            ON 
-                mtom.sc_item_option = opt.sys_id
-            WHERE 
-                mtom.request_item = '${task.sys_id}'
-        `);
+        // Query untuk mendapatkan variabel dari ServiceNow
+const variables = await this.conn.query(`
+    SELECT opt.value 
+    FROM sc_item_option_mtom mtom
+    JOIN sc_item_option opt ON mtom.sc_item_option = opt.sys_id
+    WHERE mtom.request_item = '${task.sys_id}'
+`);
 
-        // Tambahkan log untuk melihat hasil query
-        console.log('Query Results:', variables);
+// Variabel untuk menyimpan hasil pencarian
+let requestSubject = '';
+let explainRequest = '';
 
-        // Variabel untuk menyimpan hasil pencarian
-        let requestSubject = '';
-        let explainRequest = '';
+// Loop untuk memeriksa setiap elemen berdasarkan kondisi yang diberikan
+if (variables && variables.length > 0) {
+    for (let i = 0; i < variables.length; i++) {
+        const variableValue = variables[i]?.value || '';
 
-        // Loop untuk memeriksa setiap elemen berdasarkan item_option_name
-        if (variables && variables.length > 0) {
-            for (let i = 0; i < variables.length; i++) {
-        // Memeriksa apakah item_option_name adalah "request_subject" atau "please_explain_your_request"
-        if (variables[i].item_option_name === 'request_subject') {
-                    requestSubject = variables[i].variable_value;
-        }else if (variables[i].item_option_name === 'please_explain_your_request') {
-                    explainRequest = variables[i].variable_value;
-                }
-
-                // Berhenti jika kedua field sudah ditemukan
-                if (requestSubject && explainRequest) {
-                    break;
-                }
+        // Logika untuk "request_subject"
+        if (!requestSubject) {
+            if (
+                /^[a-zA-Z]+$/.test(variableValue) &&    // Hindari alphanumeric campuran
+                variableValue.length > 10 &&            // Ambil yang lebih dari 10 karakter
+                !/Email Ingestion/i.test(variableValue) && // Hindari "Email Ingestion"
+                /(PD|FW|RE)/i.test(variableValue)        // Ambil yang mengandung "PD", "FW", atau "RE"
+            ) {
+                requestSubject = variableValue;
             }
         }
 
-        // Jika tidak ditemukan, tambahkan pesan debug untuk memeriksa query
-        if (!requestSubject && !explainRequest) {
-            console.log('No matching variables found for Request Subject or Explain Request.');
+        // Logika untuk "explain_request"
+        if (!explainRequest) {
+            if (
+                variableValue.length > 100 &&             // Ambil yang lebih dari 100 karakter
+                /(Dear|Please)/i.test(variableValue)      // Ambil yang mengandung "Dear" atau "Please"
+            ) {
+                explainRequest = variableValue;
+            }
         }
 
-        // Cetak hasil
-        console.log('Request Subject:', requestSubject);
-        console.log('Explain Request:', explainRequest);
+        // Berhenti jika kedua field sudah ditemukan
+        if (requestSubject && explainRequest) {
+            break;
+        }
+    }
+}
+
+// Jika tidak ditemukan, tambahkan pesan debug untuk memeriksa query
+if (!requestSubject && !explainRequest) {
+    console.log('No matching variables found for Request Subject or Explain Request.');
+}
+
+// Cetak hasil
+console.log('Request Subject:', requestSubject);
+console.log('Explain Request:', explainRequest);
+
 
         
 

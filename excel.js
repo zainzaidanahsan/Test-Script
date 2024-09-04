@@ -1,5 +1,6 @@
 const fs = require('fs');
 const mariadb = require('mariadb');
+const path = require('path');
 const { execSync } = require('child_process');
 
 async function main() {
@@ -119,38 +120,63 @@ class SnowArchival {
     
         const closedAtDate = new Date(task.closed_at);
 
-        // const variables = await this.conn.query(`
-        //     SELECT opt.value 
-        //     FROM sc_item_option_mtom mtom
-        //     JOIN sc_item_option opt ON mtom.sc_item_option = opt.sys_id
-        //     WHERE mtom.request_item = '${task.sys_id}'
-        // `);
-
         const variables = await this.conn.query(`
-            SELECT 
-                sc_cat_item_option.name AS variable_name, 
-                sc_item_option.value AS variable_value 
-            FROM 
-                sc_item_option_mtom 
-            JOIN 
-                sc_item_option ON sc_item_option_mtom.sc_item_option = sc_item_option.sys_id 
-            JOIN 
-                sc_cat_item_option ON sc_item_option.sc_cat_item_option = sc_cat_item_option.sys_id 
-            WHERE 
-                sc_item_option_mtom.request_item = '${task.sys_id}' 
-            AND 
-                (sc_cat_item_option.name = 'Request Subject' OR sc_cat_item_option.name = 'Explain Request')
+            SELECT opt.value 
+            FROM sc_item_option_mtom mtom
+            JOIN sc_item_option opt ON mtom.sc_item_option = opt.sys_id
+            WHERE mtom.request_item = '${task.sys_id}'
         `);
+
+        // Variabel untuk menyimpan hasil pencarian
+        let requestSubject = '';
+        let explainRequest = '';
+
+        // Loop untuk memeriksa setiap elemen berdasarkan kondisi yang diberikan
+        if (variables && variables.length > 0) {
+            for (let i = 0; i < variables.length; i++) {
+                const variableValue = variables[i]?.value || '';
+
+                // Logika untuk "request_subject"
+                if (!requestSubject) {
+                    if (
+                        /^(FW:|RE:|PD:)/i.test(variableValue) &&  // Pastikan mengandung "FW:", "RE:", atau "PD:"
+                        variableValue.length > 10 &&             // Ambil yang lebih dari 10 karakter
+                        !/Email Ingestion/i.test(variableValue) &&  // Hindari "Email Ingestion"
+                        !/[@]/.test(variableValue) &&            // Hindari karakter "@"
+                        !(variableValue.length >= 25 && variableValue.length <= 40 && /^[a-zA-Z0-9]+$/.test(variableValue)) // Hindari string alfanumerik dengan panjang 25-40 karakter
+                    ) {
+                        requestSubject = variableValue;
+                    }
+                }
+
+                // Logika untuk "explain_request"
+                if (!explainRequest) {
+                    if (
+                        variableValue.length > 100 &&             // Ambil yang lebih dari 100 karakter
+                        /(Dear|Please)/i.test(variableValue)      // Ambil yang mengandung "Dear" atau "Please"
+                    ) {
+                        explainRequest = variableValue;
+                    }
+                }
+
+                // Berhenti jika kedua field sudah ditemukan
+                if (requestSubject && explainRequest) {
+                    break;
+                }
+            }
+        }
+
+        // Jika tidak ditemukan, tambahkan pesan debug untuk memeriksa query
+        if (!requestSubject && !explainRequest) {
+            console.log('No matching variables found for Request Subject or Explain Request.');
+        }
+
+
         
-        const requestSubject = variables.find(v => v.variable_name === 'Request Subject')?.variable_value || '';
-        const explainRequest = variables.find(v => v.variable_name === 'Explain Request')?.variable_value || '';
-        
+
 
         
         
-        const variable1 = variables[2]?.value || '';
-        const variable2 = variables[10]?.value || '';
-
         const data = {
             'Number': task.number,
             'Opened': task.opened_at,
@@ -244,6 +270,7 @@ class SnowArchival {
     //     return this.conn.query(`select * from task where sys_class_name = 'sc_req_item' and number in (${ritmList}) order by number desc limit ${limit} offset ${offset};`);
     // }
     async getTasks(offset, limit) {
+        
         return this.conn.query(`
             SELECT * 
             FROM task 

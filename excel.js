@@ -77,6 +77,47 @@ class SnowArchival {
         }
     }
 
+    async getTasks(startIdx, batchSize) {
+        const query = `
+            SELECT 
+                sys_id, 
+                number, 
+                opened_at, 
+                closed_at, 
+                State, 
+                priority, 
+                short_description, 
+                a_str_22, 
+                a_str_23, 
+                a_str_24, 
+                a_str_25, 
+                a_str_27, 
+                a_str_28, 
+                a_str_10, 
+                a_str_7, 
+                contact_type, 
+                assigned_to, 
+                company, 
+                cat_item, 
+                task_effective_number,
+                approval,
+                approval_set,
+                reassignment_count
+            FROM 
+                sc_req_item
+            LIMIT 
+                ${startIdx}, ${batchSize}
+        `;
+
+        try {
+            const tasks = await this.conn.query(query);
+            return tasks;
+        } catch (err) {
+            console.error('Error fetching tasks:', err);
+            return [];
+        }
+    }
+
     async extractCsv(task, taskPath) {
         const journals = await this.conn.query(`select * from sys_journal_field where element in ('work_notes', 'comments') and element_id = '${task.sys_id}' order by sys_created_on;`);
         const commentsAndWorkNotes = journals.map(this.constructJournal).join('\n');
@@ -104,39 +145,34 @@ class SnowArchival {
             WHERE mtom.request_item = '${task.sys_id}'
         `);
 
-        // Variabel untuk menyimpan hasil pencarian
         let requestSubject = '';
         let explainRequest = '';
 
-        // Loop untuk memeriksa setiap elemen berdasarkan kondisi yang diberikan
         if (variables && variables.length > 0) {
             for (let i = 0; i < variables.length; i++) {
                 const variableValue = variables[i]?.value || '';
 
-                // Logika untuk "request_subject"
                 if (!requestSubject) {
                     if (
-                        /^(FW:|RE:|PD:)/i.test(variableValue) &&  // Pastikan mengandung "FW:", "RE:", atau "PD:"
-                        variableValue.length > 10 &&             // Ambil yang lebih dari 10 karakter
-                        !/Email Ingestion/i.test(variableValue) &&  // Hindari "Email Ingestion"
-                        !/[@]/.test(variableValue) &&            // Hindari karakter "@"
-                        !(variableValue.length >= 25 && variableValue.length <= 40 && /^[a-zA-Z0-9]+$/.test(variableValue)) // Hindari string alfanumerik dengan panjang 25-40 karakter
+                        /^(FW:|RE:|PD:)/i.test(variableValue) &&  
+                        variableValue.length > 10 &&             
+                        !/Email Ingestion/i.test(variableValue) &&  
+                        !/[@]/.test(variableValue) &&            
+                        !(variableValue.length >= 25 && variableValue.length <= 40 && /^[a-zA-Z0-9]+$/.test(variableValue)) 
                     ) {
                         requestSubject = variableValue;
                     }
                 }
 
-                // Logika untuk "explain_request"
                 if (!explainRequest) {
                     if (
-                        variableValue.length > 100 &&             // Ambil yang lebih dari 100 karakter
-                        /(Dear|Please)/i.test(variableValue)      // Ambil yang mengandung "Dear" atau "Please"
+                        variableValue.length > 100 &&             
+                        /(Dear|Please)/i.test(variableValue)      
                     ) {
                         explainRequest = variableValue;
                     }
                 }
 
-                // Berhenti jika kedua field sudah ditemukan
                 if (requestSubject && explainRequest) {
                     break;
                 }
@@ -181,34 +217,30 @@ class SnowArchival {
         };
     
         const header = Object.keys(data).join(',');
-        const values = Object.values(data).map(value => `"${this.escapeCsvValue(value)}"`).join(',');
-    
-        // Write CSV string to file
-        const filepath = `${taskPath}/${task.number}.csv`;
-        fs.writeFileSync('data.csv', `${header}\n${values}`);
-        execSync(`mv data.csv "${filepath}"`);
-    }
+        const values = Object.values(data).map(value => `"${value}"`).join(',');
 
-    async getVendorTypeName(task) {
-        const vendorType = await this.conn.query(`SELECT name FROM vendor_type WHERE sys_id = '${task.vendor_type}'`);
-        return vendorType[0]?.name || '';
+        fs.writeFileSync(`${taskPath}/task.csv`, `${header}\n${values}\n`);
+    }
+    
+    async extractAttachments(task, taskPath) {
+        const attachments = await this.conn.query(`select sys_id, file_name from sys_attachment where table_sys_id = '${task.sys_id}'`);
+    
+        for (const attachment of attachments) {
+            const attachmentPath = path.join(taskPath, attachment.file_name);
+            const command = `mv "${attachmentPath}" "${taskPath}"`;
+            execSync(command);
+        }
+    }
+    
+    constructJournal(journal) {
+        const journalDate = new Date(journal.sys_created_on);
+        const formattedDate = this.formatDateBeta(journalDate);
+        return `${formattedDate} - ${journal.sys_created_by}: ${journal.value}`;
     }
 
     async getCompanyCode(task) {
-        const company = await this.conn.query(`select u_company_code from core_company where sys_id = '${task.company}'`);
-        return company[0]?.u_company_code || '';
-    }
-    
-    async getRequestType(task) {
-        const requestType = await this.conn.query(`SELECT request_type FROM outbound_request_usage_metrics WHERE sys_id = '${task.sys_id}'`);
-        return requestType[0]?.request_type || '';
-    }
-
-    escapeCsvValue(value) {
-        if (typeof value === 'string') {
-            return value.replace(/"/g, '""'); // Escape double quotes
-        }
-        return value;
+        const company = await this.conn.query(`select u_company from sys_user where sys_id = '${task.company}'`);
+        return company[0]?.u_company || '';
     }
 
     async getAssignedTo(task) {

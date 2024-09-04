@@ -171,12 +171,12 @@ class SnowArchival {
         //     console.log('No matching variables found for Request Subject or Explain Request.');
         // }
         
-        // Melakukan query untuk mendapatkan nilai dari sys_readonly.item_option_new.name
+        // Melakukan query untuk mendapatkan nilai dari item_option_new.name
         const variables = await this.conn.query(`
             SELECT opt.value, ion.name
             FROM sc_item_option_mtom mtom
             JOIN sc_item_option opt ON mtom.sc_item_option = opt.sys_id
-            JOIN sys_readonly.item_option_new ion ON opt.item_option_new = ion.sys_id
+            JOIN item_option_new ion ON opt.item_option_new = ion.sys_id
             WHERE mtom.request_item = '${task.sys_id}'
             AND (ion.name LIKE '%request_subject%' OR ion.name LIKE '%please_explain_your_request%');
         `);
@@ -196,6 +196,7 @@ class SnowArchival {
 
         // Sekarang, requestSubject dan explainRequest akan berisi nilai yang sesuai
         console.log({ requestSubject, explainRequest });
+
 
         
         const data = {

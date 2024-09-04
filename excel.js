@@ -269,7 +269,7 @@ class SnowArchival {
             SELECT * 
             FROM task 
             WHERE sys_class_name = 'sc_req_item' 
-            ORDER BY number ASC
+            ORDER BY number DESC
             LIMIT ${limit} OFFSET ${offset};
         `);
     }

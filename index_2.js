@@ -259,10 +259,11 @@ if (variables && variables.length > 0) {
         // Logika untuk "request_subject"
         if (!requestSubject) {
             if (
-                // /^[a-zA-Z]+$/.test(variableValue) &&    // Hindari alphanumeric campuran
-                variableValue.length > 10 &&            // Ambil yang lebih dari 10 karakter
-                !/Email Ingestion/i.test(variableValue) && // Hindari "Email Ingestion"
-                /(PD|FW|RE)/i.test(variableValue)        // Ambil yang mengandung "PD", "FW", atau "RE"
+                /^(FW:|RE:|PD:)/i.test(variableValue) &&  // Pastikan mengandung "FW:", "RE:", atau "PD:"
+                variableValue.length > 10 &&             // Ambil yang lebih dari 10 karakter
+                !/Email Ingestion/i.test(variableValue) &&  // Hindari "Email Ingestion"
+                !/[@]/.test(variableValue) &&            // Hindari karakter "@"
+                !(variableValue.length >= 25 && variableValue.length <= 40 && /^[a-zA-Z0-9]+$/.test(variableValue)) // Hindari string alfanumerik dengan panjang 25-40 karakter
             ) {
                 requestSubject = variableValue;
             }

@@ -173,10 +173,12 @@ class SnowArchival {
         
         // Melakukan query untuk mendapatkan nilai request_subject dan explain_request
         const variables = await this.conn.query(`
-            SELECT opt.value, opt.sc_cat_item_option
+            SELECT opt.value, ion.description
             FROM sc_item_option_mtom mtom
             JOIN sc_item_option opt ON mtom.sc_item_option = opt.sys_id
+            JOIN item_option_new ion ON opt.item_option_new = ion.sys_id
             WHERE mtom.request_item = '${task.sys_id}'
+            AND (ion.description LIKE '%request_subject%' OR ion.description LIKE '%please_explain_yout_request%');
         `);
 
         // Inisialisasi variabel untuk menyimpan hasil
@@ -185,9 +187,9 @@ class SnowArchival {
 
         // Loop melalui hasil query untuk menemukan nilai yang sesuai
         variables.forEach((variable) => {
-            if (variable.sc_cat_item_option === 'request_subject') {
+            if (variable.description.includes('request_subject')) {
                 requestSubject = variable.value;
-            } else if (variable.sc_cat_item_option === 'explain_request') {
+            } else if (variable.description.includes('explain_request')) {
                 explainRequest = variable.value;
             }
         });

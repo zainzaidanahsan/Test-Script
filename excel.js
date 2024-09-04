@@ -171,14 +171,14 @@ class SnowArchival {
         //     console.log('No matching variables found for Request Subject or Explain Request.');
         // }
         
-        // Melakukan query untuk mendapatkan nilai request_subject dan explain_request
+        // Melakukan query untuk mendapatkan nilai dari sys_readonly.item_option_new.name
         const variables = await this.conn.query(`
-            SELECT opt.value, ion.description
+            SELECT opt.value, ion.name
             FROM sc_item_option_mtom mtom
             JOIN sc_item_option opt ON mtom.sc_item_option = opt.sys_id
-            JOIN item_option_new ion ON opt.item_option_new = ion.sys_id
+            JOIN sys_readonly.item_option_new ion ON opt.item_option_new = ion.sys_id
             WHERE mtom.request_item = '${task.sys_id}'
-            AND (ion.description LIKE '%request_subject%' OR ion.description LIKE '%please_explain_yout_request%');
+            AND (ion.name LIKE '%request_subject%' OR ion.name LIKE '%please_explain_your_request%');
         `);
 
         // Inisialisasi variabel untuk menyimpan hasil
@@ -187,17 +187,15 @@ class SnowArchival {
 
         // Loop melalui hasil query untuk menemukan nilai yang sesuai
         variables.forEach((variable) => {
-            if (variable.description.includes('request_subject')) {
+            if (variable.name.includes('request_subject')) {
                 requestSubject = variable.value;
-            } else if (variable.description.includes('explain_request')) {
+            } else if (variable.name.includes('please_explain_your_request')) {
                 explainRequest = variable.value;
             }
         });
 
-        console.log('Request Subject:', requestSubject);
-        console.log('Explain Request:', explainRequest);
-
         // Sekarang, requestSubject dan explainRequest akan berisi nilai yang sesuai
+        console.log({ requestSubject, explainRequest });
 
         
         const data = {

@@ -167,9 +167,9 @@ class SnowArchival {
         }
 
         // Jika tidak ditemukan, tambahkan pesan debug untuk memeriksa query
-        if (!requestSubject && !explainRequest) {
-            console.log('No matching variables found for Request Subject or Explain Request.');
-        }
+        // if (!requestSubject && !explainRequest) {
+        //     console.log('No matching variables found for Request Subject or Explain Request.');
+        // }
 
 
         

@@ -120,56 +120,80 @@ class SnowArchival {
     
         const closedAtDate = new Date(task.closed_at);
 
+        // const variables = await this.conn.query(`
+        //     SELECT opt.value 
+        //     FROM sc_item_option_mtom mtom
+        //     JOIN sc_item_option opt ON mtom.sc_item_option = opt.sys_id
+        //     WHERE mtom.request_item = '${task.sys_id}'
+        // `);
+
+        // // Variabel untuk menyimpan hasil pencarian
+        // let requestSubject = '';
+        // let explainRequest = '';
+
+        // // Loop untuk memeriksa setiap elemen berdasarkan kondisi yang diberikan
+        // if (variables && variables.length > 0) {
+        //     for (let i = 0; i < variables.length; i++) {
+        //         const variableValue = variables[i]?.value || '';
+
+        //         // Logika untuk "request_subject"
+        //         if (!requestSubject) {
+        //             if (
+        //                 /^(FW:|RE:|PD:|AW:)/i.test(variableValue) &&  // Pastikan mengandung "FW:", "RE:", atau "PD:"
+        //                 variableValue.length > 10 &&             // Ambil yang lebih dari 10 karakter
+        //                 !/Email Ingestion/i.test(variableValue) &&  // Hindari "Email Ingestion"
+        //                 !/[@]/.test(variableValue) &&            // Hindari karakter "@"
+        //                 !(variableValue.length >= 25 && variableValue.length <= 40 && /^[a-zA-Z0-9]+$/.test(variableValue)) // Hindari string alfanumerik dengan panjang 25-40 karakter
+        //             ) {
+        //                 requestSubject = variableValue;
+        //             }
+        //         }
+
+        //         // Logika untuk "explain_request"
+        //         if (!explainRequest) {
+        //             if (
+        //                 variableValue.length > 100 &&             // Ambil yang lebih dari 100 karakter
+        //                 /(Dear|Please)/i.test(variableValue)      // Ambil yang mengandung "Dear" atau "Please"
+        //             ) {
+        //                 explainRequest = variableValue;
+        //             }
+        //         }
+
+        //         // Berhenti jika kedua field sudah ditemukan
+        //         if (requestSubject && explainRequest) {
+        //             break;
+        //         }
+        //     }
+        // }
+
+        // Jika tidak ditemukan, tambahkan pesan debug untuk memeriksa query
+        // if (!requestSubject && !explainRequest) {
+        //     console.log('No matching variables found for Request Subject or Explain Request.');
+        // }
+        
+        // Melakukan query untuk mendapatkan nilai request_subject dan explain_request
         const variables = await this.conn.query(`
-            SELECT opt.value 
+            SELECT opt.value, opt.sc_cat_item_option
             FROM sc_item_option_mtom mtom
             JOIN sc_item_option opt ON mtom.sc_item_option = opt.sys_id
             WHERE mtom.request_item = '${task.sys_id}'
         `);
 
-        // Variabel untuk menyimpan hasil pencarian
+        // Inisialisasi variabel untuk menyimpan hasil
         let requestSubject = '';
         let explainRequest = '';
 
-        // Loop untuk memeriksa setiap elemen berdasarkan kondisi yang diberikan
-        if (variables && variables.length > 0) {
-            for (let i = 0; i < variables.length; i++) {
-                const variableValue = variables[i]?.value || '';
-
-                // Logika untuk "request_subject"
-                if (!requestSubject) {
-                    if (
-                        /^(FW:|RE:|PD:)/i.test(variableValue) &&  // Pastikan mengandung "FW:", "RE:", atau "PD:"
-                        variableValue.length > 10 &&             // Ambil yang lebih dari 10 karakter
-                        !/Email Ingestion/i.test(variableValue) &&  // Hindari "Email Ingestion"
-                        !/[@]/.test(variableValue) &&            // Hindari karakter "@"
-                        !(variableValue.length >= 25 && variableValue.length <= 40 && /^[a-zA-Z0-9]+$/.test(variableValue)) // Hindari string alfanumerik dengan panjang 25-40 karakter
-                    ) {
-                        requestSubject = variableValue;
-                    }
-                }
-
-                // Logika untuk "explain_request"
-                if (!explainRequest) {
-                    if (
-                        variableValue.length > 100 &&             // Ambil yang lebih dari 100 karakter
-                        /(Dear|Please)/i.test(variableValue)      // Ambil yang mengandung "Dear" atau "Please"
-                    ) {
-                        explainRequest = variableValue;
-                    }
-                }
-
-                // Berhenti jika kedua field sudah ditemukan
-                if (requestSubject && explainRequest) {
-                    break;
-                }
+        // Loop melalui hasil query untuk menemukan nilai yang sesuai
+        variables.forEach((variable) => {
+            if (variable.sc_cat_item_option === 'request_subject') {
+                requestSubject = variable.value;
+            } else if (variable.sc_cat_item_option === 'explain_request') {
+                explainRequest = variable.value;
             }
-        }
+        });
 
-        // Jika tidak ditemukan, tambahkan pesan debug untuk memeriksa query
-        // if (!requestSubject && !explainRequest) {
-        //     console.log('No matching variables found for Request Subject or Explain Request.');
-        // }  
+        // Sekarang, requestSubject dan explainRequest akan berisi nilai yang sesuai
+
         
         const data = {
             'Number': task.number,

@@ -259,7 +259,7 @@ if (variables && variables.length > 0) {
         // Logika untuk "request_subject"
         if (!requestSubject) {
             if (
-                /^[a-zA-Z]+$/.test(variableValue) &&    // Hindari alphanumeric campuran
+                // /^[a-zA-Z]+$/.test(variableValue) &&    // Hindari alphanumeric campuran
                 variableValue.length > 10 &&            // Ambil yang lebih dari 10 karakter
                 !/Email Ingestion/i.test(variableValue) && // Hindari "Email Ingestion"
                 /(PD|FW|RE)/i.test(variableValue)        // Ambil yang mengandung "PD", "FW", atau "RE"

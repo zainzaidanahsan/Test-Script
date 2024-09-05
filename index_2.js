@@ -309,8 +309,8 @@ class SnowArchival {
         const variables = await this.conn.query(query);
 
         // Mendapatkan value berdasarkan question secara dinamis
-        const requestSubject = variables.find(v => v.question === 'request_subject')?.value || '';
-        const explainRequest = variables.find(v => v.question === 'please_explain_your_others')?.value || '';
+        const requestSubject = variables.find(v => v.question === 'Request Subject')?.value || '';
+        const explainRequest = variables.find(v => v.question === 'Explain Others')?.value || '';
 
         console.log(`Request Subject: ${requestSubject}`);
         console.log(`Explain Request: ${explainRequest}`);

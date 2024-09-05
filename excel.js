@@ -1,6 +1,7 @@
 const fs = require('fs');
 const mariadb = require('mariadb');
 const path = require('path');
+const XLSX = require('xlsx');
 const { execSync } = require('child_process');
 
 async function main() {
@@ -18,7 +19,8 @@ async function main() {
         });
 
         conn = await pool.getConnection();
-        const snowArchival = new SnowArchival(conn, '/mt/ebs/result', 1000);
+         const excelDataMap = readExcelData('/mt/ebs/fileExcel/DBDUMP.xlsx');
+         const snowArchival = new SnowArchival(conn, '/mt/ebs/result', 1000, excelDataMap);
 
         await snowArchival.start();
         console.log('Script finished');
@@ -29,10 +31,26 @@ async function main() {
     }
 }
 
+function readExcelData(filePath) {
+    const workbook = XLSX.readFile(filePath);
+    const sheetName = workbook.SheetNames[0]; // Mengambil sheet pertama
+    const worksheet = workbook.Sheets[sheetName];
+    const excelData = XLSX.utils.sheet_to_json(worksheet, { defval: '' }); // defval untuk mengisi nilai kosong dengan string kosong
+
+    // Membuat Map dengan key sebagai 'number' dan value sebagai data row
+    const dataMap = new Map();
+    excelData.forEach(row => {
+        dataMap.set(row.number, row);
+    });
+
+    return dataMap;
+}
+
 class SnowArchival {
     conn;
     resultDir;
     batchSize;
+    excelDataMap;
 
     excludedRitms = [
         '2437ffc5478b295047f2c071e36d43df',
@@ -69,6 +87,7 @@ class SnowArchival {
         this.conn = conn;
         this.resultDir = resultDir;
         this.batchSize = batchSize;
+        this.excelDataMap = excelDataMap;
     }
 
     async start() {
@@ -103,6 +122,16 @@ class SnowArchival {
     async extractCsv(task, taskPath) {
         const journals = await this.conn.query(`select * from sys_journal_field where element in ('work_notes', 'comments') and element_id = '${task.sys_id}' order by sys_created_on;`);
         const commentsAndWorkNotes = journals.map(this.constructJournal).join('\n');
+
+        const excelRow = this.excelDataMap.get(task.number);
+
+        const state = excelRow.state || '';
+        const priority = excelRow.priority || '';
+        const externalEmail = excelRow.u_external_user_s_email || '';
+        const resolved = excelRow.closed_at || '';
+        const stage = excelRow.stage || '';
+        const assignedToValue = excelRow.assigned_to || '';
+        const request = excelRow.request || '';
     
         const assignedTo = await this.getAssignedTo(task);
         const catItemName = await this.getCatItemName(task);
@@ -120,82 +149,62 @@ class SnowArchival {
     
         const closedAtDate = new Date(task.closed_at);
 
-        // const variables = await this.conn.query(`
-        //     SELECT opt.value 
-        //     FROM sc_item_option_mtom mtom
-        //     JOIN sc_item_option opt ON mtom.sc_item_option = opt.sys_id
-        //     WHERE mtom.request_item = '${task.sys_id}'
-        // `);
-
-        // // Variabel untuk menyimpan hasil pencarian
-        // let requestSubject = '';
-        // let explainRequest = '';
-
-        // // Loop untuk memeriksa setiap elemen berdasarkan kondisi yang diberikan
-        // if (variables && variables.length > 0) {
-        //     for (let i = 0; i < variables.length; i++) {
-        //         const variableValue = variables[i]?.value || '';
-
-        //         // Logika untuk "request_subject"
-        //         if (!requestSubject) {
-        //             if (
-        //                 /^(FW:|RE:|PD:|AW:)/i.test(variableValue) &&  // Pastikan mengandung "FW:", "RE:", atau "PD:"
-        //                 variableValue.length > 10 &&             // Ambil yang lebih dari 10 karakter
-        //                 !/Email Ingestion/i.test(variableValue) &&  // Hindari "Email Ingestion"
-        //                 !/[@]/.test(variableValue) &&            // Hindari karakter "@"
-        //                 !(variableValue.length >= 25 && variableValue.length <= 40 && /^[a-zA-Z0-9]+$/.test(variableValue)) // Hindari string alfanumerik dengan panjang 25-40 karakter
-        //             ) {
-        //                 requestSubject = variableValue;
-        //             }
-        //         }
-
-        //         // Logika untuk "explain_request"
-        //         if (!explainRequest) {
-        //             if (
-        //                 variableValue.length > 100 &&             // Ambil yang lebih dari 100 karakter
-        //                 /(Dear|Please)/i.test(variableValue)      // Ambil yang mengandung "Dear" atau "Please"
-        //             ) {
-        //                 explainRequest = variableValue;
-        //             }
-        //         }
-
-        //         // Berhenti jika kedua field sudah ditemukan
-        //         if (requestSubject && explainRequest) {
-        //             break;
-        //         }
-        //     }
-        // }
-
-        // Jika tidak ditemukan, tambahkan pesan debug untuk memeriksa query
-        // if (!requestSubject && !explainRequest) {
-        //     console.log('No matching variables found for Request Subject or Explain Request.');
-        // }
-        
-        // Melakukan query untuk mendapatkan nilai dari item_option_new.name
         const variables = await this.conn.query(`
-            SELECT opt.value, ion.name
+            SELECT opt.value 
             FROM sc_item_option_mtom mtom
             JOIN sc_item_option opt ON mtom.sc_item_option = opt.sys_id
-            JOIN item_option_new ion ON opt.item_option_new = ion.sys_id
             WHERE mtom.request_item = '${task.sys_id}'
-            AND (ion.name LIKE '%request_subject%' OR ion.name LIKE '%please_explain_your_request%');
         `);
 
-        // Inisialisasi variabel untuk menyimpan hasil
+        // Variabel untuk menyimpan hasil pencarian
         let requestSubject = '';
         let explainRequest = '';
 
-        // Loop melalui hasil query untuk menemukan nilai yang sesuai
-        variables.forEach((variable) => {
-            if (variable.name.includes('request_subject')) {
-                requestSubject = variable.value;
-            } else if (variable.name.includes('please_explain_your_request')) {
-                explainRequest = variable.value;
-            }
-        });
+        // Loop untuk memeriksa setiap elemen berdasarkan kondisi yang diberikan
+        if (variables && variables.length > 0) {
+            for (let i = 0; i < variables.length; i++) {
+                const variableValue = variables[i]?.value || '';
 
-        // Sekarang, requestSubject dan explainRequest akan berisi nilai yang sesuai
-        console.log({ requestSubject, explainRequest });
+                // Logika untuk "request_subject"
+                if (!requestSubject) {
+                    if (
+                        /^(FW:|RE:|PD:|AW:|AP:)/i.test(variableValue) ||  // Pastikan mengandung "FW:", "RE:", atau "PD:"
+                        /^(b5dc152e1b3ce810930821b4bd4bcba7)/i.test(variableValue) &&
+                        variableValue.length > 10 &&             // Ambil yang lebih dari 10 karakter
+                        !/Email Ingestion/i.test(variableValue)  // Hindari "Email Ingestion"
+                        // !/[@]/.test(variableValue) &&            // Hindari karakter "@"
+                        // !(variableValue.length >= 25 && variableValue.length <= 40 && /^[a-zA-Z0-9]+$/.test(variableValue)) // Hindari string alfanumerik dengan panjang 25-40 karakter
+                    ) {
+                        requestSubject = variableValue;
+                    }
+                }
+
+                // Logika untuk "explain_request"
+                if (!explainRequest) {
+                    if (
+                        variableValue.length > 50 ||             // Ambil yang lebih dari 100 karakter
+                        /(Dear|Please)/i.test(variableValue) ||    // Ambil yang mengandung "Dear" atau "Please"
+                        /(2fb5302a1b3c205061c38739cd4bcbf0)/i.test(variableValue)      // Ambil yang mengandung "Dear" atau "Please"
+                    ) {
+                        explainRequest = variableValue;
+                    }
+                }
+
+                // Berhenti jika kedua field sudah ditemukan
+                if (requestSubject && explainRequest) {
+                    break;
+                }
+            }
+        }
+
+        // Jika tidak ditemukan, tambahkan pesan debug untuk memeriksa query
+        if (!requestSubject && !explainRequest) {
+            console.log('No matching variables found for Request Subject or Explain Request.');
+        }
+
+        // Cetak hasil
+        console.log('Request Subject:', requestSubject);
+        console.log('Explain Request:', explainRequest);
 
 
         
@@ -204,22 +213,22 @@ class SnowArchival {
             'Opened': task.opened_at,
             'Company Code': companyCode,
             'Region': task.a_str_27,
-            'Priority': task.priority,
+            'Priority': priority,
             'Source': task.a_str_22,
             'Item': catItemName,
             'Short Description': task.short_description,
             'Resolution Note': task.a_str_10,
             'Resolved': this.formatDateBeta(closedAtDate),
             'Closed': this.formatDateBeta(closedAtDate),
-            'Stage': stageName,
-            'State': task.State,
+            'Stage': stage,
+            'State': state,
             'PMI Generic Mailbox': task.a_str_23,
             'Email TO Recipients': task.a_str_25,
             'Email CC Recipients': task.a_str_24,
-            'External User\'s Email': task.a_str_7,
+            'External User\'s Email': externalEmail,
             'Sys Email Address': task.sys_created_by,
             'Contact Type': task.contact_type,
-            'Assigned To': assignedTo,
+            'Assigned To': assignedToValue,
             'Resolved By': assignedTo,
             'Contact Person': task.a_str_28,
             'Approval': task.approval,
@@ -230,7 +239,7 @@ class SnowArchival {
             'Related Ticket': reference,
             'Reopening Count': '',
             'Comments And Work Notes': commentsAndWorkNotes,
-            'Request': task.task_effective_number,
+            'Request': request,
             'Sys Watch List': task.a_str_24,
             'Request Subject': requestSubject,  
             'Explain Request': explainRequest    
@@ -297,7 +306,7 @@ class SnowArchival {
     //         SELECT * 
     //         FROM task 
     //         WHERE sys_class_name = 'sc_req_item' 
-    //         ORDER BY number DESC
+    //         ORDER BY number ASC
     //         LIMIT ${limit} OFFSET ${offset};
     //     `);
     // }
@@ -360,18 +369,9 @@ class SnowArchival {
 
     writeCompressedFile(filepath, buf) {
         try { execSync('rm tmp', { stdio: [] })} catch (e) {};
-    
         fs.writeFileSync('tmp.gz', buf);
-    
-        // Pastikan direktori tujuan ada
-        const dirPath = path.dirname(filepath);
-        if (!fs.existsSync(dirPath)) {
-            fs.mkdirSync(dirPath, { recursive: true });
-        }
-    
         execSync(`gzip -d tmp.gz && mv tmp ${filepath}`);
     }
-    
 
     writeFile(filepath, buf) {
         fs.writeFileSync(filepath, buf);

@@ -20,7 +20,7 @@ async function main() {
 
         conn = await pool.getConnection();
          const excelDataMap = readExcelData('/mt/ebs/fileExcel/DBDUMP.xlsx');
-         const snowArchival = new SnowArchival(conn, '/mt/ebs/result', 100, excelDataMap);
+         const snowArchival = new SnowArchival(conn, '/mt/ebs/result', 22, excelDataMap);
 
         await snowArchival.start();
         console.log('Script finished');

@@ -83,7 +83,7 @@ class SnowArchival {
         'RITM0019738'
     ];
 
-    constructor(conn, resultDir, batchSize) {
+    constructor(conn, resultDir, batchSize, excelDataMap) {
         this.conn = conn;
         this.resultDir = resultDir;
         this.batchSize = batchSize;

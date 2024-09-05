@@ -308,12 +308,17 @@ class SnowArchival {
             WHERE mtom.request_item = '${task.sys_id}'
             ORDER BY cat_opt.order
         `);
+        console.log('All Variables:', variables);
 
         // Membuat objek untuk memetakan nama variabel ke nilai mereka
         const variableMap = {};
         variables.forEach(variable => {
+            console.log('Variable Name:', variable.question_text); // Tambahkan log ini
+            console.log('Variable Value:', variable.value); // Tambahkan log ini
             variableMap[variable.question_text] = variable.value; // Menggunakan 'name' sebagai kunci
         });
+
+        
 
         // Mengakses variabel berdasarkan nama mereka
         const requestSubject = variableMap['Request Subject'] || '';  // Sesuaikan dengan 'name' sebenarnya

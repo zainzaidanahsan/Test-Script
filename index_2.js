@@ -297,35 +297,24 @@ class SnowArchival {
 
 
         
-        // Query untuk mendapatkan nama variabel (name) dan nilai variabel (value)
-        const variables = await this.conn.query(`
-            SELECT 
-                cat_opt.name AS question_text,  -- Nama variabel (label)
-                opt.value                        -- Nilai variabel
-            FROM sc_item_option_mtom mtom
-            JOIN sc_item_option opt ON mtom.sc_item_option = opt.sys_id
-            JOIN sc_cat_item_option cat_opt ON opt.sc_cat_item_option = cat_opt.sys_id
-            WHERE mtom.request_item = '${task.sys_id}'
-            ORDER BY cat_opt.order
-        `);
-        console.log('All Variables:', variables);
+       // Melakukan query untuk mendapatkan value yang sesuai dengan question tertentu
+        const query = `
+        SELECT opt.item_option_new AS question, opt.value 
+        FROM sc_item_option_mtom mtom
+        JOIN sc_item_option opt ON mtom.sc_item_option = opt.sys_id
+        WHERE mtom.request_item = '${task.sys_id}'
+        `;
 
-        // Membuat objek untuk memetakan nama variabel ke nilai mereka
-        const variableMap = {};
-        variables.forEach(variable => {
-            console.log('Variable Name:', variable.question_text); // Tambahkan log ini
-            console.log('Variable Value:', variable.value); // Tambahkan log ini
-            variableMap[variable.question_text] = variable.value; // Menggunakan 'name' sebagai kunci
-        });
+        // Eksekusi query untuk mendapatkan data
+        const variables = await this.conn.query(query);
 
-        
+        // Mendapatkan value berdasarkan question secara dinamis
+        const requestSubject = variables.find(v => v.question === 'request_subject')?.value || '';
+        const explainRequest = variables.find(v => v.question === 'please_explain_your_others')?.value || '';
 
-        // Mengakses variabel berdasarkan nama mereka
-        const requestSubject = variableMap['Request Subject'] || '';  // Sesuaikan dengan 'name' sebenarnya
-        const explainRequest = variableMap['Explain Request'] || '';  // Sesuaikan dengan 'name' sebenarnya
+        console.log(`Request Subject: ${requestSubject}`);
+        console.log(`Explain Request: ${explainRequest}`);
 
-        console.log('Request Subject:', requestSubject);
-        console.log('Explain Request:', explainRequest);
 
 
         

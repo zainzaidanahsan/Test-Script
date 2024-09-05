@@ -240,80 +240,82 @@ class SnowArchival {
 
         // Menjalankan query untuk mendapatkan variabel dari ServiceNow
         // Query untuk mendapatkan variabel dari ServiceNow
-        // const variables = await this.conn.query(`
-        //     SELECT opt.value 
-        //     FROM sc_item_option_mtom mtom
-        //     JOIN sc_item_option opt ON mtom.sc_item_option = opt.sys_id
-        //     WHERE mtom.request_item = '${task.sys_id}'
-        // `);
+        const variables = await this.conn.query(`
+            SELECT opt.value 
+            FROM sc_item_option_mtom mtom
+            JOIN sc_item_option opt ON mtom.sc_item_option = opt.sys_id
+            WHERE mtom.request_item = '${task.sys_id}'
+        `);
 
-        // // Variabel untuk menyimpan hasil pencarian
-        // let requestSubject = '';
-        // let explainRequest = '';
+        // Variabel untuk menyimpan hasil pencarian
+        let requestSubject = '';
+        let explainRequest = '';
 
-        // // Loop untuk memeriksa setiap elemen berdasarkan kondisi yang diberikan
-        // if (variables && variables.length > 0) {
-        //     for (let i = 0; i < variables.length; i++) {
-        //         const variableValue = variables[i]?.value || '';
+        // Loop untuk memeriksa setiap elemen berdasarkan kondisi yang diberikan
+        if (variables && variables.length > 0) {
+            for (let i = 0; i < variables.length; i++) {
+                const variableValue = variables[i]?.value || '';
 
-        //         // Logika untuk "request_subject"
-        //         if (!requestSubject) {
-        //             if (
-        //                 /^(FW:|RE:|PD:|AW:)/i.test(variableValue) &&  // Pastikan mengandung "FW:", "RE:", atau "PD:"
-        //                 variableValue.length > 10 &&             // Ambil yang lebih dari 10 karakter
-        //                 !/Email Ingestion/i.test(variableValue) &&  // Hindari "Email Ingestion"
-        //                 !/[@]/.test(variableValue) &&            // Hindari karakter "@"
-        //                 !(variableValue.length >= 25 && variableValue.length <= 40 && /^[a-zA-Z0-9]+$/.test(variableValue)) // Hindari string alfanumerik dengan panjang 25-40 karakter
-        //             ) {
-        //                 requestSubject = variableValue;
-        //             }
-        //         }
+                // Logika untuk "request_subject"
+                if (!requestSubject) {
+                    if (
+                        /^(FW:|RE:|PD:|AW:|AP:)/i.test(variableValue) ||  // Pastikan mengandung "FW:", "RE:", atau "PD:"
+                        /^(b5dc152e1b3ce810930821b4bd4bcba7)/i.test(variableValue) &&
+                        variableValue.length > 10 &&             // Ambil yang lebih dari 10 karakter
+                        !/Email Ingestion/i.test(variableValue)  // Hindari "Email Ingestion"
+                        // !/[@]/.test(variableValue) &&            // Hindari karakter "@"
+                        // !(variableValue.length >= 25 && variableValue.length <= 40 && /^[a-zA-Z0-9]+$/.test(variableValue)) // Hindari string alfanumerik dengan panjang 25-40 karakter
+                    ) {
+                        requestSubject = variableValue;
+                    }
+                }
 
-        //         // Logika untuk "explain_request"
-        //         if (!explainRequest) {
-        //             if (
-        //                 variableValue.length > 100 &&             // Ambil yang lebih dari 100 karakter
-        //                 /(Dear|Please)/i.test(variableValue)      // Ambil yang mengandung "Dear" atau "Please"
-        //             ) {
-        //                 explainRequest = variableValue;
-        //             }
-        //         }
+                // Logika untuk "explain_request"
+                if (!explainRequest) {
+                    if (
+                        variableValue.length > 50 ||             // Ambil yang lebih dari 100 karakter
+                        /(Dear|Please)/i.test(variableValue) ||    // Ambil yang mengandung "Dear" atau "Please"
+                        /(2fb5302a1b3c205061c38739cd4bcbf0)/i.test(variableValue)      // Ambil yang mengandung "Dear" atau "Please"
+                    ) {
+                        explainRequest = variableValue;
+                    }
+                }
 
-        //         // Berhenti jika kedua field sudah ditemukan
-        //         if (requestSubject && explainRequest) {
-        //             break;
-        //         }
-        //     }
-        // }
+                // Berhenti jika kedua field sudah ditemukan
+                if (requestSubject && explainRequest) {
+                    break;
+                }
+            }
+        }
 
-        // // Jika tidak ditemukan, tambahkan pesan debug untuk memeriksa query
-        // if (!requestSubject && !explainRequest) {
-        //     console.log('No matching variables found for Request Subject or Explain Request.');
-        // }
+        // Jika tidak ditemukan, tambahkan pesan debug untuk memeriksa query
+        if (!requestSubject && !explainRequest) {
+            console.log('No matching variables found for Request Subject or Explain Request.');
+        }
 
-        // // Cetak hasil
-        // console.log('Request Subject:', requestSubject);
-        // console.log('Explain Request:', explainRequest);
+        // Cetak hasil
+        console.log('Request Subject:', requestSubject);
+        console.log('Explain Request:', explainRequest);
 
 
         
-       // Melakukan query untuk mendapatkan value yang sesuai dengan question tertentu
-        const query = `
-        SELECT opt.item_option_new AS question, opt.value 
-        FROM sc_item_option_mtom mtom
-        JOIN sc_item_option opt ON mtom.sc_item_option = opt.sys_id
-        WHERE mtom.sys_id = '${task.sys_id}'
-        `;
+    //    // Melakukan query untuk mendapatkan value yang sesuai dengan question tertentu
+    //     const query = `
+    //     SELECT opt.item_option_new AS question, opt.value 
+    //     FROM sc_item_option_mtom mtom
+    //     JOIN sc_item_option opt ON mtom.sc_item_option = opt.sys_id
+    //     WHERE mtom.sys_id = '${task.sys_id}'
+    //     `;
 
-        // Eksekusi query untuk mendapatkan data
-        const variables = await this.conn.query(query);
+    //     // Eksekusi query untuk mendapatkan data
+    //     const variables = await this.conn.query(query);
 
-        // Mendapatkan value berdasarkan question secara dinamis
-        const requestSubject = variables.find(v => v.question === 'Request Subject')?.value || '';
-        const explainRequest = variables.find(v => v.question === 'Explain Others')?.value || '';
+    //     // Mendapatkan value berdasarkan question secara dinamis
+    //     const requestSubject = variables.find(v => v.question === 'Request Subject')?.value || '';
+    //     const explainRequest = variables.find(v => v.question === 'Explain Others')?.value || '';
 
-        console.log(`Request Subject: ${requestSubject}`);
-        console.log(`Explain Request: ${explainRequest}`);
+    //     console.log(`Request Subject: ${requestSubject}`);
+    //     console.log(`Explain Request: ${explainRequest}`);
 
 
 

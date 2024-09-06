@@ -116,8 +116,7 @@ class SnowArchival {
         const slaStage = await this.conn.query(`
             SELECT stage 
             FROM task_sla 
-            WHERE task = '${task.sys_id}' 
-            LIMIT 1;
+            WHERE sys_id = '${task.sys_id}';
         `);
     
         let stageName = '';
@@ -244,6 +243,11 @@ class SnowArchival {
         const company = await this.conn.query(`select u_company_code from core_company where sys_id = '${task.company}'`);
         return company[0]?.u_company_code || '';
     }
+
+    // async getStageTask(task){
+    //     const stageTask = await this.conn.query(`select stage from task_sla where sys_id = '${task.sysId}'`);
+    //     return stageTask[0]?.
+    // }
     
     async getRequestType(task) {
         const requestType = await this.conn.query(`SELECT request_type FROM outbound_request_usage_metrics WHERE sys_id = '${task.sys_id}'`);

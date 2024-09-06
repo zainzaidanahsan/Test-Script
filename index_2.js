@@ -108,6 +108,7 @@ class SnowArchival {
         const catItemName = await this.getCatItemName(task);
         const reference = await this.getReference(task);
         const companyCode = await this.getCompanyCode(task);
+        const stageS = await this.getStageTask(task)
         const priorityLabel = task.priority === 4 ? 'Normal' : task.priority === 5 ? 'Urgent' : task.priority;
         const stateLabel = task.state === 3 ? 'Closed Completed' : task.state === 4 ? 'Closed Incompleted' : task.state;
 
@@ -201,7 +202,7 @@ class SnowArchival {
             'Resolution Note': task.a_str_10,
             'Resolved': this.formatDateBeta(resolvedAtDate),
             'Closed': this.formatDateBeta(closedAtDate),
-            'Stage': slaStage,
+            'Stage': stageS,
             'State': stateLabel,
             'PMI Generic Mailbox': task.a_str_23,
             'Email TO Recipients': task.a_str_25,
@@ -245,10 +246,10 @@ class SnowArchival {
         return company[0]?.u_company_code || '';
     }
 
-    // async getStageTask(task){
-    //     const stageTask = await this.conn.query(`select stage from task_sla where sys_id = '${task.sysId}'`);
-    //     return stageTask[0]?.
-    // }
+    async getStageTask(task){
+        const stageTask = await this.conn.query(`select stage from task_sla where sys_id = '${task.sysId}'`);
+        return stageTask[0]?.stage || '';
+    }
     
     async getRequestType(task) {
         const requestType = await this.conn.query(`SELECT request_type FROM outbound_request_usage_metrics WHERE sys_id = '${task.sys_id}'`);

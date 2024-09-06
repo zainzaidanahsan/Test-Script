@@ -154,8 +154,6 @@ class SnowArchival {
                         /^(b5dc152e1b3ce810930821b4bd4bcba7)/i.test(variableValue) &&
                         variableValue.length > 10 &&             // Ambil yang lebih dari 10 karakter
                         !/Email Ingestion/i.test(variableValue)  // Hindari "Email Ingestion"
-                        // !/[@]/.test(variableValue) &&            // Hindari karakter "@"
-                        // !(variableValue.length >= 25 && variableValue.length <= 40 && /^[a-zA-Z0-9]+$/.test(variableValue)) // Hindari string alfanumerik dengan panjang 25-40 karakter
                     ) {
                         requestSubject = variableValue;
                     }

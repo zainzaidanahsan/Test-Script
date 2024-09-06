@@ -1,5 +1,6 @@
 import pandas as pd
 import mysql.connector
+import numpy as np
 
 # Baca file Excel
 file_path = '/mt/ebs/fileExcel/datadump.xlsx'
@@ -7,6 +8,9 @@ df = pd.read_excel(file_path)
 
 # Cek nama kolom yang ada di DataFrame
 print("Kolom yang tersedia:", df.columns.tolist())
+
+# Konversi format tanggal
+df['u_closed_time'] = pd.to_datetime(df['u_closed_time'], format='%m/%d/%Y %H:%M', errors='coerce')
 
 # Koneksi ke MariaDB
 connection = mysql.connector.connect(
@@ -32,25 +36,27 @@ for index, row in df.iterrows():
     u_closed_time = row.get('u_closed_time', None)
     assigned_to = row.get('assigned_to', None)
     
-    # Cek apakah kolom 'reopening_count' ada di DataFrame
-    if 'reopening_count' in df.columns:
-        reopening_count = row.get('reopening_count', None)
-    else:
-        reopening_count = None  # Atau bisa menambahkan logika lain jika kolom tidak ada
-    
+    # Cek apakah kolom 'reopening_count' ada di DataFrame dan pastikan tidak ada NaN
+    reopening_count = row.get('u_reopen_count', None) if 'u_reopen_count' in df.columns else None
+    if isinstance(reopening_count, float) and np.isnan(reopening_count):
+        reopening_count = None
+
     u_external_user_s_email = row.get('u_external_user_s_email', None)
     request = row.get('request', None)
-    
-    # Masukkan data ke tabel
-    cursor.execute(insert_query, (
-        number,
-        stage,
-        u_closed_time,
-        assigned_to,
+
+    # Pastikan tidak ada nilai NaN atau None yang dimasukkan
+    data = (
+        number if pd.notna(number) else None,
+        stage if pd.notna(stage) else None,
+        u_closed_time if pd.notna(u_closed_time) else None,
+        assigned_to if pd.notna(assigned_to) else None,
         reopening_count,
-        u_external_user_s_email,
-        request
-    ))
+        u_external_user_s_email if pd.notna(u_external_user_s_email) else None,
+        request if pd.notna(request) else None
+    )
+
+    # Masukkan data ke tabel
+    cursor.execute(insert_query, data)
 
 # Commit dan tutup koneksi
 connection.commit()

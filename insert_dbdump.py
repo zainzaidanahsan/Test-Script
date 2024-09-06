@@ -36,16 +36,21 @@ for index, row in df.iterrows():
     u_closed_time = row.get('u_closed_time', None)
     assigned_to = row.get('assigned_to', None)
     
-    # Cek apakah kolom 'reopening_count' ada di DataFrame dan pastikan tidak ada NaN
-    reopening_count = row.get('u_reopen_count', None) if 'u_reopen_count' in df.columns else None
+    # Cek apakah kolom 'u_reopen_count' ada di DataFrame
+    reopening_count = row.get('u_reopen_count', None)
     if isinstance(reopening_count, float) and np.isnan(reopening_count):
         reopening_count = None
 
     u_external_user_s_email = row.get('u_external_user_s_email', None)
     request = row.get('request', None)
 
-    # Pastikan tidak ada nilai NaN atau None yang dimasukkan
-    data = (
+    # Debug: Print data yang akan dimasukkan
+    print(f"Inserting data: number={number}, stage={stage}, u_closed_time={u_closed_time}, "
+          f"assigned_to={assigned_to}, reopening_count={reopening_count}, "
+          f"u_external_user_s_email={u_external_user_s_email}, request={request}")
+
+    # Masukkan data ke tabel
+    cursor.execute(insert_query, (
         number if pd.notna(number) else None,
         stage if pd.notna(stage) else None,
         u_closed_time if pd.notna(u_closed_time) else None,
@@ -53,10 +58,7 @@ for index, row in df.iterrows():
         reopening_count,
         u_external_user_s_email if pd.notna(u_external_user_s_email) else None,
         request if pd.notna(request) else None
-    )
-
-    # Masukkan data ke tabel
-    cursor.execute(insert_query, data)
+    ))
 
 # Commit dan tutup koneksi
 connection.commit()

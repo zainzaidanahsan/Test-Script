@@ -21,7 +21,7 @@ cursor = connection.cursor()
 
 # Sesuaikan nama tabel dan kolom sesuai dengan struktur database Anda
 insert_query = """
-    INSERT INTO your_table (number, stage, u_closed_time, assigned_to, reopening_count, u_external_user_s_email, request)
+    INSERT INTO dbdump (number, stage, u_closed_time, assigned_to, reopening_count, u_external_user_s_email, request)
     VALUES (%s, %s, %s, %s, %s, %s, %s)
 """
 

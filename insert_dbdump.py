@@ -2,7 +2,7 @@ import pandas as pd
 import mysql.connector
 
 # Baca file Excel
-file_path = '/mt/ebs/fileExcel/DBDUMP.xlsx'
+file_path = '/mt/ebs/fileExcel/datadump.xlsx'
 df = pd.read_excel(file_path)
 
 # Koneksi ke MariaDB

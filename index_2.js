@@ -113,6 +113,12 @@ class SnowArchival {
 
     
         const contexts = await this.conn.query(`select name, stage from wf_context where id = '${task.sys_id}'`);
+        const slaStage = await this.conn.query(`
+            SELECT stage 
+            FROM task_sla 
+            WHERE task = '${task.sys_id}' 
+            LIMIT 1;
+        `);
     
         let stageName = '';
         if (contexts && contexts.length > 0) {
@@ -122,6 +128,7 @@ class SnowArchival {
         }
     
         const closedAtDate = new Date(task.closed_at);
+        const resolvedAtDate = new Date(task.a_dtm_2);
 
         const variables = await this.conn.query(`
             SELECT opt.value 
@@ -192,14 +199,14 @@ class SnowArchival {
             'Item': catItemName,
             'Short Description': task.short_description,
             'Resolution Note': task.a_str_10,
-            'Resolved': this.formatDateBeta(closedAtDate),
+            'Resolved': this.formatDateBeta(resolvedAtDate),
             'Closed': this.formatDateBeta(closedAtDate),
-            'Stage': stageName,
+            'Stage': slaStage,
             'State': stateLabel,
             'PMI Generic Mailbox': task.a_str_23,
             'Email TO Recipients': task.a_str_25,
             'Email CC Recipients': task.a_str_24,
-            'External User\'s Email': task.a_str_7,
+            'External User\'s Email': task.a_str_17,
             'Sys Email Address': task.sys_created_by,
             'Contact Type': task.contact_type,
             'Assigned To': assignedTo,

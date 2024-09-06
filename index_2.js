@@ -108,6 +108,9 @@ class SnowArchival {
         const catItemName = await this.getCatItemName(task);
         const reference = await this.getReference(task);
         const companyCode = await this.getCompanyCode(task);
+        const priorityLabel = task.priority === 4 ? 'Normal' : task.priority === 5 ? 'Urgent' : task.priority;
+        const stateLabel = task.state === 3 ? 'Closed Completed' : task.state === 4 ? 'Closed Incompleted' : task.state;
+
     
         const contexts = await this.conn.query(`select name, stage from wf_context where id = '${task.sys_id}'`);
     
@@ -174,8 +177,8 @@ class SnowArchival {
         }
 
         // Cetak hasil
-        console.log('Request Subject:', requestSubject);
-        console.log('Explain Request:', explainRequest);
+        // console.log('Request Subject:', requestSubject);
+        // console.log('Explain Request:', explainRequest);
 
 
         
@@ -184,7 +187,7 @@ class SnowArchival {
             'Opened': task.opened_at,
             'Company Code': companyCode,
             'Region': task.a_str_27,
-            'Priority': task.priority,
+            'Priority': priorityLabel,
             'Source': task.a_str_22,
             'Item': catItemName,
             'Short Description': task.short_description,
@@ -192,7 +195,7 @@ class SnowArchival {
             'Resolved': this.formatDateBeta(closedAtDate),
             'Closed': this.formatDateBeta(closedAtDate),
             'Stage': stageName,
-            'State': task.State,
+            'State': stateLabel,
             'PMI Generic Mailbox': task.a_str_23,
             'Email TO Recipients': task.a_str_25,
             'Email CC Recipients': task.a_str_24,

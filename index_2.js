@@ -128,6 +128,7 @@ class SnowArchival {
     
         const closedAtDate = new Date(task.closed_at);
         const resolvedAtDate = new Date(task.a_dtm_2);
+        const openedAtDate = new Date(task.opened_at);
 
         const variables = await this.conn.query(`
             SELECT opt.value 
@@ -190,7 +191,7 @@ class SnowArchival {
         
         const data = {
             'Number': task.number,
-            'Opened': task.opened_at,
+            'Opened': this.formatDateBeta(openedAtDate),
             'Company Code': companyCode,
             'Region': task.a_str_27,
             'Priority': priorityLabel,

@@ -9,8 +9,15 @@ df = pd.read_excel(file_path)
 # Cek nama kolom yang ada di DataFrame
 print("Kolom yang tersedia:", df.columns.tolist())
 
-# Konversi format tanggal
+# Konversi format tanggal menggunakan dua format yang berbeda
+# Format pertama: dd-mm-yyyy
+# Format kedua: m/d/yyyy
+
+# Coba konversi menggunakan format 'dd-mm-yyyy HH:MM' terlebih dahulu
 df['u_closed_time'] = pd.to_datetime(df['u_closed_time'], format='%d-%m-%Y %H:%M', errors='coerce')
+
+# Untuk nilai yang masih NaT (Not a Time), coba dengan format 'm/d/yyyy HH:MM'
+df['u_closed_time'] = df['u_closed_time'].fillna(pd.to_datetime(df['u_closed_time'], format='%m/%d/%Y %H:%M', errors='coerce'))
 
 # Koneksi ke MariaDB
 connection = mysql.connector.connect(
@@ -23,7 +30,7 @@ connection = mysql.connector.connect(
 
 cursor = connection.cursor()
 
-# Sesuaikan nama tabel dan kolom sesuai dengan struktur database Anda
+# Query untuk insert data ke tabel dbdump
 insert_query = """
     INSERT INTO dbdump (number, stage, u_closed_time, assigned_to, reopening_count, u_external_user_s_email, request)
     VALUES (%s, %s, %s, %s, %s, %s, %s)

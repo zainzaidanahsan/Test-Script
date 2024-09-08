@@ -10,7 +10,7 @@ df = pd.read_excel(file_path)
 print("Kolom yang tersedia:", df.columns.tolist())
 
 # Konversi format tanggal
-df['u_closed_time'] = pd.to_datetime(df['u_closed_time'], format='%m/%d/%Y %H:%M', errors='coerce')
+df['u_closed_time'] = pd.to_datetime(df['u_closed_time'], format='%d-%m-%Y %H:%M', errors='coerce')
 
 # Koneksi ke MariaDB
 connection = mysql.connector.connect(

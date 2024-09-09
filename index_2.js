@@ -3,8 +3,6 @@ const mariadb = require('mariadb');
 const path = require('path');
 const { execSync } = require('child_process');
 
-import { format, utcToZonedTime } from 'date-fns-tz';
-
 async function main() {
     console.log('Script started');
 
@@ -102,15 +100,6 @@ class SnowArchival {
         }
     }
 
-    // formatToUTC(date) {
-    //     return date.toISOString();  // Menjaga format tetap UTC tanpa perubahan ke zona waktu lokal
-    // }
-
-    formatToUTC(date) {
-        const timeZone = 'UTC';
-        const zonedDate = utcToZonedTime(date, timeZone);
-        return format(zonedDate, 'yyyy-MM-dd HH:mm:ss');
-      }
 
     async extractCsv(task, taskPath) {
         const journals = await this.conn.query(`select * from sys_journal_field where element in ('work_notes', 'comments') and element_id = '${task.sys_id}' order by sys_created_on;`);

@@ -194,7 +194,7 @@ class SnowArchival {
         
         const data = {
             'Number': task.number,
-            'Opened': this.formatDateBeta(openedAtDate),
+            'Opened': openedAtDate,
             'Company Code': companyCode,
             'Region': task.a_str_27,
             'Priority': priorityLabel,

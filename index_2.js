@@ -214,7 +214,7 @@ class SnowArchival {
             'Short Description': task.short_description,
             'Resolution Note': task.a_str_10,
             'Resolved': dbRow.u_closed_time || 'Null',
-            'Closed': formatToUTC(closedAtDate),
+            'Closed': closedAtDate,
             'Stage': dbRow.stage,
             'State': stateLabel,
             'PMI Generic Mailbox': task.a_str_23,

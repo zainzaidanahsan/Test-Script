@@ -210,7 +210,7 @@ class SnowArchival {
             'PMI Generic Mailbox': task.a_str_23,
             'Email TO Recipients': task.a_str_25,
             'Email CC Recipients': task.a_str_24,
-            'External User\'s Email': dbRow.u_external_user_s_email,
+            'External User\'s Email': dbRow.u_external_user_s_email || 'N/A',
             'Sys Email Address': task.sys_created_by,
             'Contact Type': task.contact_type,
             'Assigned To': dbRow.assigned_to || 'N/A',

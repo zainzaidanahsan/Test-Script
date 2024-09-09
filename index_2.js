@@ -131,6 +131,41 @@ class SnowArchival {
         const resolvedAtDate = new Date(task.a_dtm_2);
         const openedAtDate = new Date(task.opened_at);
 
+        const stageDump = await this.conn.query(`
+            SELECT stage
+            FROM dbdump
+            WHERE number = '${task.number}'
+        `)
+        const resolvedTime = await this.conn.query(`
+            SELECT u_closed_time
+            FROM dbdump
+            WHERE number = '${task.number}'
+        `)
+
+        const assignedToDump = await this.conn.query(`
+            SELECT assigned_to
+            FROM dbdump
+            WHERE number = '${task.number}'
+        `)
+
+        const reopeningCount = await this.conn.query(`
+            SELECT reopening_count
+            FROM dbdump
+            WHERE number = '${task.number}'
+        `)
+
+        const externalEmail = await this.conn.query(`
+            SELECT u_external_user_s_email
+            FROM dbdump
+            WHERE number = '${task.number}'
+        `)
+
+        const request = await this.conn.query(`
+            SELECT request
+            FROM dbdump
+            WHERE number = '${task.number}'
+        `)
+
         const variables = await this.conn.query(`
             SELECT opt.value 
             FROM sc_item_option_mtom mtom
@@ -198,17 +233,17 @@ class SnowArchival {
             'Item': catItemName,
             'Short Description': task.short_description,
             'Resolution Note': task.a_str_10,
-            'Resolved': this.formatDateBeta(resolvedAtDate),
+            'Resolved': resolvedTime,
             'Closed': this.formatDateBeta(closedAtDate),
-            'Stage': stageS,
+            'Stage': stageDump,
             'State': stateLabel,
             'PMI Generic Mailbox': task.a_str_23,
             'Email TO Recipients': task.a_str_25,
             'Email CC Recipients': task.a_str_24,
-            'External User\'s Email': task.a_str_17,
+            'External User\'s Email': externalEmail,
             'Sys Email Address': task.sys_created_by,
             'Contact Type': task.contact_type,
-            'Assigned To': assignedTo,
+            'Assigned To': assignedToDump,
             'Resolved By': assignedTo,
             'Contact Person': task.a_str_28,
             'Approval': task.approval,
@@ -217,9 +252,9 @@ class SnowArchival {
             'Approval Set': task.approval_set,
             'Reassignment Count': task.reassignment_count,
             'Related Ticket': reference,
-            'Reopening Count': '',
+            'Reopening Count': reopeningCount,
             'Comments And Work Notes': commentsAndWorkNotes,
-            'Request': task.task_effective_number,
+            'Request': request,
             'Sys Watch List': task.a_str_24,
             'Request Subject': requestSubject,  
             'Explain Request': explainRequest    

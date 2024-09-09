@@ -132,40 +132,6 @@ class SnowArchival {
         const resolvedAtDate = new Date(task.a_dtm_2);
         const openedAtDate = new Date(task.opened_at);
 
-        const stageDump = await this.conn.query(`
-            SELECT stage
-            FROM dbdump
-            WHERE number = '${task.number}'
-        `)
-        const resolvedTime = await this.conn.query(`
-            SELECT u_closed_time
-            FROM dbdump
-            WHERE number = '${task.number}'
-        `)
-
-        const assignedToDump = await this.conn.query(`
-            SELECT assigned_to
-            FROM dbdump
-            WHERE number = '${task.number}'
-        `)
-
-        const reopeningCount = await this.conn.query(`
-            SELECT reopening_count
-            FROM dbdump
-            WHERE number = '${task.number}'
-        `)
-
-        const externalEmail = await this.conn.query(`
-            SELECT u_external_user_s_email
-            FROM dbdump
-            WHERE number = '${task.number}'
-        `)
-
-        const request = await this.conn.query(`
-            SELECT request
-            FROM dbdump
-            WHERE number = '${task.number}'
-        `)
 
         const variables = await this.conn.query(`
             SELECT opt.value 
@@ -218,9 +184,13 @@ class SnowArchival {
             console.log('No matching variables found for Request Subject or Explain Request.');
         }
 
-        // Cetak hasil
-        // console.log('Request Subject:', requestSubject);
-        // console.log('Explain Request:', explainRequest);
+        const dbDumpData = await this.conn.query(`
+            SELECT number, stage, u_closed_time, assigned_to, reopening_count, u_external_user_s_email, request
+            FROM dbdump
+            WHERE number = '${task.number}'
+        `);
+
+        const dbRow = dbDumpData[0];
 
 
         
@@ -234,17 +204,17 @@ class SnowArchival {
             'Item': catItemName,
             'Short Description': task.short_description,
             'Resolution Note': task.a_str_10,
-            'Resolved': resolvedTimeDump,
+            'Resolved': dbRow.u_closed_time,
             'Closed': this.formatDateBeta(closedAtDate),
-            'Stage': stageDump,
+            'Stage': dbRow.stage,
             'State': stateLabel,
             'PMI Generic Mailbox': task.a_str_23,
             'Email TO Recipients': task.a_str_25,
             'Email CC Recipients': task.a_str_24,
-            'External User\'s Email': externalEmail,
+            'External User\'s Email': dbRow.u_external_user_s_email,
             'Sys Email Address': task.sys_created_by,
             'Contact Type': task.contact_type,
-            'Assigned To': assignedToDump,
+            'Assigned To': dbRow.assigned_to || 'N/A',
             'Resolved By': assignedTo,
             'Contact Person': task.a_str_28,
             'Approval': task.approval,
@@ -253,9 +223,9 @@ class SnowArchival {
             'Approval Set': task.approval_set,
             'Reassignment Count': task.reassignment_count,
             'Related Ticket': reference,
-            'Reopening Count': reopeningCount,
+            'Reopening Count': dbRow.reopening_count || 0,
             'Comments And Work Notes': commentsAndWorkNotes,
-            'Request': request,
+            'Request': dbRow.request,
             'Sys Watch List': task.a_str_24,
             'Request Subject': requestSubject,  
             'Explain Request': explainRequest    
@@ -305,11 +275,6 @@ class SnowArchival {
     async getCatItemName(task) {
         const cat = await this.conn.query(`select name from sc_cat_item where sys_id = '${task.a_ref_1}'`);
         return cat[0]?.name || '';
-    }
-
-    async getResolvedTime(task){
-        const resTime = await this.conn.query(` SELECT u_closed_time FROM dbdump WHERE number = '${task.number}'`);
-        return resTime[0]?.u_closed_time || '';
     }
     
 

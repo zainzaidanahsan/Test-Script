@@ -100,6 +100,10 @@ class SnowArchival {
         }
     }
 
+    formatToUTC(date) {
+        return date.toISOString();  // Menjaga format tetap UTC tanpa perubahan ke zona waktu lokal
+    }
+
     async extractCsv(task, taskPath) {
         const journals = await this.conn.query(`select * from sys_journal_field where element in ('work_notes', 'comments') and element_id = '${task.sys_id}' order by sys_created_on;`);
         const commentsAndWorkNotes = journals.map(this.constructJournal).join('\n');
@@ -190,8 +194,6 @@ class SnowArchival {
         `);
 
         const dbRow = dbDumpData[0];
-
-
         
         const data = {
             'Number': task.number,
@@ -204,7 +206,7 @@ class SnowArchival {
             'Short Description': task.short_description,
             'Resolution Note': task.a_str_10,
             'Resolved': dbRow.u_closed_time || 'Null',
-            'Closed': this.formatDateBeta(closedAtDate),
+            'Closed': formatToUTC(closedAtDate),
             'Stage': dbRow.stage,
             'State': stateLabel,
             'PMI Generic Mailbox': task.a_str_23,

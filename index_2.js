@@ -203,7 +203,7 @@ class SnowArchival {
             'Item': catItemName,
             'Short Description': task.short_description,
             'Resolution Note': task.a_str_10,
-            'Resolved': dbRow.u_closed_time,
+            'Resolved': dbRow.u_closed_time || 0,
             'Closed': this.formatDateBeta(closedAtDate),
             'Stage': dbRow.stage,
             'State': stateLabel,

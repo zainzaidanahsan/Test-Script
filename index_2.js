@@ -106,6 +106,7 @@ class SnowArchival {
     
         const assignedTo = await this.getAssignedTo(task);
         const catItemName = await this.getCatItemName(task);
+        await resolvedTimeDump = await this.getResolvedTime(task)
         const reference = await this.getReference(task);
         const companyCode = await this.getCompanyCode(task);
         const stageS = await this.getStageTask(task)
@@ -233,7 +234,7 @@ class SnowArchival {
             'Item': catItemName,
             'Short Description': task.short_description,
             'Resolution Note': task.a_str_10,
-            'Resolved': resolvedTime,
+            'Resolved': resolvedTimeDump,
             'Closed': this.formatDateBeta(closedAtDate),
             'Stage': stageDump,
             'State': stateLabel,
@@ -304,6 +305,11 @@ class SnowArchival {
     async getCatItemName(task) {
         const cat = await this.conn.query(`select name from sc_cat_item where sys_id = '${task.a_ref_1}'`);
         return cat[0]?.name || '';
+    }
+
+    async getResolvedTime(task){
+        const resTime = await this.conn.query(` SELECT u_closed_time FROM dbdump WHERE number = '${task.number}'`);
+        return resTime[0]?.u_closed_time || '';
     }
     
 

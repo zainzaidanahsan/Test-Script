@@ -106,7 +106,7 @@ class SnowArchival {
     
         const assignedTo = await this.getAssignedTo(task);
         const catItemName = await this.getCatItemName(task);
-        await resolvedTimeDump = await this.getResolvedTime(task)
+        const resolvedTimeDump = await this.getResolvedTime(task);
         const reference = await this.getReference(task);
         const companyCode = await this.getCompanyCode(task);
         const stageS = await this.getStageTask(task)

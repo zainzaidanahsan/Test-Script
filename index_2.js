@@ -175,8 +175,10 @@ class SnowArchival {
                 }
                 if(!sourceVariable){
                     if(
-                        /(4bb40dad1bb46810930821b4bd4bcb9a | 09540bfd1b34a810930821b4bd4bcb54)/i.test(variableValue) ||
-                        /(4bb40dad1bb46810930821b4bd4bcb9a)/i.test(variableValue)
+                        // /(4bb40dad1bb46810930821b4bd4bcb9a | 09540bfd1b34a810930821b4bd4bcb54)/i.test(variableValue) ||
+                        // /(4bb40dad1bb46810930821b4bd4bcb9a)/i.test(variableValue)
+                        /Internal/i.test(variableValue) ||        // Cari yang mengandung "Internal"
+                        /External/i.test(variableValue)   
                     ){
                         sourceVariable = variableValue;
                     }
@@ -184,8 +186,12 @@ class SnowArchival {
 
                 if(!regionVariable){
                     if(
-                        /(378343fd1b34a810930821b4bd4bcbce | b811faa81bf02c1061c38739cd4bcbb6)/i.test(variableValue) ||
-                        /(b811faa81bf02c1061c38739cd4bcbb6)/i.test(variableValue)
+                        // /(378343fd1b34a810930821b4bd4bcbce | b811faa81bf02c1061c38739cd4bcbb6)/i.test(variableValue) ||
+                        // /(b811faa81bf02c1061c38739cd4bcbb6)/i.test(variableValue)
+                        /EMEA/i.test(variableValue) ||             // Cari yang mengandung "EMEA"
+                        /LA/i.test(variableValue) ||               // Cari yang mengandung "LA"
+                        /APAC/i.test(variableValue) ||             // Cari yang mengandung "APAC"
+                        /EE/i.test(variableValue)                  // Cari yang mengandung "EE"
                     ){
                         regionVariable = variableValue
                     }
@@ -217,7 +223,7 @@ class SnowArchival {
             'Number': task.number,
             'Opened': openedAtDate,
             'Company Code': companyCode,
-            'Region': dbRow.u_ritm_region || task.a_str_27,
+            'Region': dbRow.u_ritm_region || regionVariable,
             'Priority': priorityLabel,
             'Source': dbRow.u_ritm_source || sourceVariable,
             'Item': catItemName,

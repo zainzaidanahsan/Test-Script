@@ -144,6 +144,7 @@ class SnowArchival {
         let requestSubject = '';
         let explainRequest = '';
         let regionVariable = '';
+        let sourceVariable = '';
 
         // Loop untuk memeriksa setiap elemen berdasarkan kondisi yang diberikan
         if (variables && variables.length > 0) {
@@ -170,6 +171,13 @@ class SnowArchival {
                         /(2fb5302a1b3c205061c38739cd4bcbf0)/i.test(variableValue)      // Ambil yang mengandung "Dear" atau "Please"
                     ) {
                         explainRequest = variableValue;
+                    }
+                }
+                if(!sourceVariable){
+                    if(
+                        /(c5a49d661b11245061c38739cd4bcb8c)/i.test(variableValue)
+                    ){
+                        sourceVariable = variableValue;
                     }
                 }
 

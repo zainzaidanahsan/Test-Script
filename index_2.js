@@ -143,6 +143,7 @@ class SnowArchival {
         // Variabel untuk menyimpan hasil pencarian
         let requestSubject = '';
         let explainRequest = '';
+        let regionVariable = '';
 
         // Loop untuk memeriksa setiap elemen berdasarkan kondisi yang diberikan
         if (variables && variables.length > 0) {
@@ -172,8 +173,16 @@ class SnowArchival {
                     }
                 }
 
+                if(!regionVariable){
+                    if(
+                        /(378343fd1b34a810930821b4bd4bcbce)/i.test(variableValue)
+                    ){
+                        regionVariable = variableValue
+                    }
+                }
+
                 // Berhenti jika kedua field sudah ditemukan
-                if (requestSubject && explainRequest) {
+                if (requestSubject && explainRequest && regionVariable) {
                     break;
                 }
             }
@@ -191,18 +200,20 @@ class SnowArchival {
         `);
 
         const dbRow = dbDumpData[0];
+        const uClosedDate = dbRow.u_closed_time ? new Date(dbRow.u_closed_time).toISOString().split('T')[0] : 'Null';
+
         
         const data = {
             'Number': task.number,
             'Opened': openedAtDate,
             'Company Code': companyCode,
-            'Region': task.a_str_27,
+            'Region': regionVariable || task.a_str_27,
             'Priority': priorityLabel,
             'Source': task.a_str_22,
             'Item': catItemName,
             'Short Description': task.short_description,
             'Resolution Note': task.a_str_10,
-            'Resolved': dbRow.u_closed_time || 'Null',
+            'Resolved': uClosedDate,
             'Closed': closedAtDate,
             'Stage': dbRow.stage,
             'State': stateLabel,
@@ -216,7 +227,6 @@ class SnowArchival {
             'Resolved By': assignedTo,
             'Contact Person': task.a_str_28,
             'Approval': task.approval,
-            'Approval Attachment': '',
             'Approval Request': task.a_str_11,
             'Approval Set': task.approval_set,
             'Reassignment Count': task.reassignment_count,

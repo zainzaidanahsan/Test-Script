@@ -150,6 +150,7 @@ class SnowArchival {
         if (variables && variables.length > 0) {
             for (let i = 0; i < variables.length; i++) {
                 const variableValue = variables[i]?.value || '';
+                const cleanedValue = variableValue.trim().toUpperCase();
 
                 // Logika untuk "request_subject"
                 if (!requestSubject) {
@@ -188,10 +189,10 @@ class SnowArchival {
                     if(
                         // /(378343fd1b34a810930821b4bd4bcbce | b811faa81bf02c1061c38739cd4bcbb6)/i.test(variableValue) ||
                         // /(b811faa81bf02c1061c38739cd4bcbb6)/i.test(variableValue)
-                        /\bEMEA\b/i.test(variableValue) ||        // Cari yang tepat "EMEA"
-                        /\bLA\b/i.test(variableValue) ||          // Cari yang tepat "LA"
-                        /\bAPAC\b/i.test(variableValue) ||        // Cari yang tepat "APAC"
-                        /\bEE\b/i.test(variableValue)             // Cari yang tepat "EE"
+                        /\bEMEA\b/i.test(cleanedValue) ||        // Cari yang tepat "EMEA"
+                        /\bLA\b/i.test(cleanedValue) ||          // Cari yang tepat "LA"
+                        /\bAPAC\b/i.test(cleanedValue) ||        // Cari yang tepat "APAC"
+                        /\bEE\b/i.test(cleanedValue)             // Cari yang tepat "EE"
                     ){
                         regionVariable = variableValue
                     }

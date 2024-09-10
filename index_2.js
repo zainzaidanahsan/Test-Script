@@ -251,7 +251,7 @@ class SnowArchival {
             'Comments And Work Notes': commentsAndWorkNotes,
             'Request': dbRow.request,
             'Sys Watch List': task.a_str_24,
-            'Request Subject': requestSubject,  
+            'Request Subject': requestSubject || task.short_description,  
             'Explain Request': explainRequest    
         };
     

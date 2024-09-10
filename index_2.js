@@ -175,7 +175,7 @@ class SnowArchival {
                 }
                 if(!sourceVariable){
                     if(
-                        /(c5a49d661b11245061c38739cd4bcb8c)/i.test(variableValue)
+                        /(c5a49d661b11245061c38739cd4bcb8c | 4bb40dad1bb46810930821b4bd4bcb9a )/i.test(variableValue)
                     ){
                         sourceVariable = variableValue;
                     }

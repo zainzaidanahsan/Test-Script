@@ -43,26 +43,26 @@ class SnowArchival {
     ];
 
     includedRitms = [
-        'RITM1187823',
-        'RITM0010503',
-        'RITM0376153',
-        'RITM0556811',
-        'RITM1023899',
-        'RITM0017426',
-        'RITM1187691',
-        'RITM0376145',
-        'RITM0989659',
-        'RITM0831264',
-        'RITM1187787',
-        'RITM1187698',
-        'RITM0376155',
-        'RITM1188570',
-        'RITM1188451',
-        'RITM0010483',
-        'RITM1068622',
-        'RITM0937637',
-        'RITM0937756',
-        'RITM0019738'
+        'RITM1187823'
+        // 'RITM0010503',
+        // 'RITM0376153',
+        // 'RITM0556811',
+        // 'RITM1023899',
+        // 'RITM0017426',
+        // 'RITM1187691',
+        // 'RITM0376145',
+        // 'RITM0989659',
+        // 'RITM0831264',
+        // 'RITM1187787',
+        // 'RITM1187698',
+        // 'RITM0376155',
+        // 'RITM1188570',
+        // 'RITM1188451',
+        // 'RITM0010483',
+        // 'RITM1068622',
+        // 'RITM0937637',
+        // 'RITM0937756',
+        // 'RITM0019738'
     ];
 
     constructor(conn, resultDir, batchSize) {
@@ -181,7 +181,8 @@ class SnowArchival {
                         // /(4bb40dad1bb46810930821b4bd4bcb9a | 09540bfd1b34a810930821b4bd4bcb54)/i.test(variableValue) ||
                         // /(4bb40dad1bb46810930821b4bd4bcb9a)/i.test(variableValue)
                         /\bInternal\b/i.test(variableValue) ||        // Cari yang mengandung "Internal"
-                        /\bExternal\b/i.test(variableValue)   
+                        /\bExternal\b/i.test(variableValue) ||
+                        /^(Internal|External)$/.test(variableValue)  // Cari nilai dengan panjang 2 hingga 4 karakter
                     ){
                         sourceVariable = variableValue;
                     }
@@ -264,7 +265,7 @@ class SnowArchival {
             'Comments And Work Notes': commentsAndWorkNotes,
             'Request': dbRow.request,
             'Sys Watch List': task.a_str_24,
-            'Request Subject': requestSubject || task.short_description,  
+            'Request Subject': task.short_description || requestSubject,  
             'Explain Request': explainRequest    
         };
     

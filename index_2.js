@@ -175,7 +175,8 @@ class SnowArchival {
                 }
                 if(!sourceVariable){
                     if(
-                        /(4bb40dad1bb46810930821b4bd4bcb9a | 09540bfd1b34a810930821b4bd4bcb54)/i.test(variableValue)
+                        /(4bb40dad1bb46810930821b4bd4bcb9a | 09540bfd1b34a810930821b4bd4bcb54)/i.test(variableValue) ||
+                        /(4bb40dad1bb46810930821b4bd4bcb9a)/i.test(variableValue)
                     ){
                         sourceVariable = variableValue;
                     }
@@ -183,7 +184,8 @@ class SnowArchival {
 
                 if(!regionVariable){
                     if(
-                        /(378343fd1b34a810930821b4bd4bcbce | b811faa81bf02c1061c38739cd4bcbb6)/i.test(variableValue)
+                        /(378343fd1b34a810930821b4bd4bcbce | b811faa81bf02c1061c38739cd4bcbb6)/i.test(variableValue) ||
+                        /(b811faa81bf02c1061c38739cd4bcbb6)/i.test(variableValue)
                     ){
                         regionVariable = variableValue
                     }

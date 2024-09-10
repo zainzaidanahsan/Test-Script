@@ -239,7 +239,7 @@ class SnowArchival {
             'Company Code': companyCode,
             'Region': dbRow.u_ritm_region || regionVariable,
             'Priority': priorityLabel,
-            'Source': dbRow.u_ritm_source || sourceVariable,
+            'Source': sourceVariable || dbRow.u_ritm_source,
             'Item': catItemName,
             'Short Description': task.short_description,
             'Resolution Note': task.a_str_10,

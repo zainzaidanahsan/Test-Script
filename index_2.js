@@ -175,7 +175,7 @@ class SnowArchival {
 
                 if(!regionVariable){
                     if(
-                        /(378343fd1b34a810930821b4bd4bcbce)/i.test(variableValue)
+                        /(378343fd1b34a810930821b4bd4bcbce | b811faa81bf02c1061c38739cd4bcbb6)/i.test(variableValue)
                     ){
                         regionVariable = variableValue
                     }

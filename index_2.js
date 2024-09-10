@@ -171,7 +171,9 @@ class SnowArchival {
                         /(Dear|Please)/i.test(variableValue) ||    // Ambil yang mengandung "Dear" atau "Please"
                         /(2fb5302a1b3c205061c38739cd4bcbf0)/i.test(variableValue)      // Ambil yang mengandung "Dear" atau "Please"
                     ) {
-                        explainRequest = variableValue;
+                        if (requestSubject !== variableValue) {
+                            explainRequest = variableValue;
+                        }
                     }
                 }
                 if(!sourceVariable){

@@ -188,10 +188,10 @@ class SnowArchival {
                     if(
                         // /(378343fd1b34a810930821b4bd4bcbce | b811faa81bf02c1061c38739cd4bcbb6)/i.test(variableValue) ||
                         // /(b811faa81bf02c1061c38739cd4bcbb6)/i.test(variableValue)
-                        /EMEA/i.test(variableValue) ||             // Cari yang mengandung "EMEA"
-                        /LA/i.test(variableValue) ||               // Cari yang mengandung "LA"
-                        /APAC/i.test(variableValue) ||             // Cari yang mengandung "APAC"
-                        /EE/i.test(variableValue)                  // Cari yang mengandung "EE"
+                        /\bEMEA\b/i.test(variableValue) ||        // Cari yang tepat "EMEA"
+                        /\bLA\b/i.test(variableValue) ||          // Cari yang tepat "LA"
+                        /\bAPAC\b/i.test(variableValue) ||        // Cari yang tepat "APAC"
+                        /\bEE\b/i.test(variableValue)             // Cari yang tepat "EE"
                     ){
                         regionVariable = variableValue
                     }

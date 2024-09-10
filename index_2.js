@@ -209,15 +209,15 @@ class SnowArchival {
 
         const dbRow = dbDumpData[0];
         const uClosedDate = dbRow.u_closed_time ? new Date(dbRow.u_closed_time).toISOString().split('T')[0] : 'Null';
-
+// Region old come from regionVariable || task.a_str_27
         
         const data = {
             'Number': task.number,
             'Opened': openedAtDate,
             'Company Code': companyCode,
-            'Region': regionVariable || task.a_str_27,
+            'Region': dbRow.u_ritm_region,
             'Priority': priorityLabel,
-            'Source': sourceVariable,
+            'Source': dbRow.u_ritm_source,
             'Item': catItemName,
             'Short Description': task.short_description,
             'Resolution Note': task.a_str_10,

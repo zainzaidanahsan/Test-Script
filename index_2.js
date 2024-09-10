@@ -217,7 +217,7 @@ class SnowArchival {
             'Company Code': companyCode,
             'Region': regionVariable || task.a_str_27,
             'Priority': priorityLabel,
-            'Source': task.a_str_22,
+            'Source': sourceVariable,
             'Item': catItemName,
             'Short Description': task.short_description,
             'Resolution Note': task.a_str_10,

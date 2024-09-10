@@ -185,18 +185,28 @@ class SnowArchival {
                     }
                 }
 
-                if(!regionVariable){
-                    if(
-                        // /(378343fd1b34a810930821b4bd4bcbce | b811faa81bf02c1061c38739cd4bcbb6)/i.test(variableValue) ||
-                        // /(b811faa81bf02c1061c38739cd4bcbb6)/i.test(variableValue)
-                        /\bEMEA\b/i.test(cleanedValue) ||        // Cari yang tepat "EMEA"
-                        /\bLA\b/i.test(cleanedValue) ||          // Cari yang tepat "LA"
-                        /\bAPAC\b/i.test(cleanedValue) ||        // Cari yang tepat "APAC"
-                        /\bEE\b/i.test(cleanedValue)             // Cari yang tepat "EE"
-                    ){
-                        regionVariable = variableValue
+                // if(!regionVariable){
+                //     if(
+                //         // /(378343fd1b34a810930821b4bd4bcbce | b811faa81bf02c1061c38739cd4bcbb6)/i.test(variableValue) ||
+                //         // /(b811faa81bf02c1061c38739cd4bcbb6)/i.test(variableValue)
+                //         /\bEMEA\b/i.test(cleanedValue) ||        // Cari yang tepat "EMEA"
+                //         /\bLA\b/i.test(cleanedValue) ||          // Cari yang tepat "LA"
+                //         /\bAPAC\b/i.test(cleanedValue) ||        // Cari yang tepat "APAC"
+                //         /\bEE\b/i.test(cleanedValue)             // Cari yang tepat "EE"
+                //     ){
+                //         regionVariable = variableValue
+                //     }
+                // }
+
+                if (!regionVariable) {
+                    if (
+                        /^(EMEA|LA|APAC|EE)$/.test(variableValue)  // Cari nilai dengan panjang 2 hingga 4 karakter
+                    ) {
+                        regionVariable = variableValue;
                     }
                 }
+                
+
 
                 // Berhenti jika kedua field sudah ditemukan
                 if (requestSubject && explainRequest && regionVariable) {

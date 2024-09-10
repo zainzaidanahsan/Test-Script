@@ -175,7 +175,7 @@ class SnowArchival {
                 }
                 if(!sourceVariable){
                     if(
-                        /(4bb40dad1bb46810930821b4bd4bcb9a)/i.test(variableValue)
+                        /(4bb40dad1bb46810930821b4bd4bcb9a | 09540bfd1b34a810930821b4bd4bcb54)/i.test(variableValue)
                     ){
                         sourceVariable = variableValue;
                     }
@@ -215,9 +215,9 @@ class SnowArchival {
             'Number': task.number,
             'Opened': openedAtDate,
             'Company Code': companyCode,
-            'Region': dbRow.u_ritm_region,
+            'Region': dbRow.u_ritm_region || task.a_str_27,
             'Priority': priorityLabel,
-            'Source': dbRow.u_ritm_source,
+            'Source': dbRow.u_ritm_source || sourceVariable,
             'Item': catItemName,
             'Short Description': task.short_description,
             'Resolution Note': task.a_str_10,

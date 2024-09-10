@@ -215,7 +215,7 @@ class SnowArchival {
             'Number': task.number,
             'Opened': openedAtDate,
             'Company Code': companyCode,
-            'Region': regionVariable,
+            'Region': regionVariable || task.a_str_27,
             'Priority': priorityLabel,
             'Source': task.a_str_22,
             'Item': catItemName,

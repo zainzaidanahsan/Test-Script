@@ -244,7 +244,7 @@ class SnowArchival {
             'Company Code': companyCode,
             'Region': dbRow.u_ritm_region || regionVariable,
             'Priority': priorityLabel,
-            'Source': (sourceVariable && typeof sourceVariable === 'string' && (sourceVariable.includes('Internal') || sourceVariable.includes('External'))) ? sourceVariable : (dbRow.u_ritm_source || 'Unknown'),  // Default ke 'Unknown' jika nilai juga tidak ditemukan
+            'Source': dbRow.u_ritm_source || sourceVariable || 'Unknown',
             'Item': catItemName,
             'Short Description': task.short_description,
             'Resolution Note': task.a_str_10,

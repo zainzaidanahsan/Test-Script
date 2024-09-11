@@ -189,7 +189,7 @@ class SnowArchival {
                         
                     ){
                         sourceVariable = variableValue;
-                        console.log(sourceVariable);
+                        
                     }
                 }
 
@@ -244,7 +244,7 @@ class SnowArchival {
             'Company Code': companyCode,
             'Region': dbRow.u_ritm_region || regionVariable,
             'Priority': priorityLabel,
-            'Source': sourceVariable || dbRow.u_ritm_source,
+            'Source': (sourceVariable && (sourceVariable.includes('Internal') || sourceVariable.includes('External'))) ? sourceVariable : dbRow.u_ritm_source,
             'Item': catItemName,
             'Short Description': task.short_description,
             'Resolution Note': task.a_str_10,

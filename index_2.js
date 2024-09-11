@@ -52,7 +52,7 @@ class SnowArchival {
         // 'RITM1187691',
         // 'RITM0376145',
         // 'RITM0989659',
-        // 'RITM0831264',
+        'RITM0831264',
         // 'RITM1187787',
         // 'RITM1187698',
         // 'RITM0376155',
@@ -182,7 +182,8 @@ class SnowArchival {
                         // /(4bb40dad1bb46810930821b4bd4bcb9a)/i.test(variableValue)
                         /\bInternal\b/i.test(variableValue) ||        // Cari yang mengandung "Internal"
                         /\bExternal\b/i.test(variableValue) ||
-                        /^(Internal|External)$/.test(variableValue)  // Cari nilai dengan panjang 2 hingga 4 karakter
+                        /^(Internal|External)$/.test(variableValue) &&
+                        variableValue.length < 9  // Cari nilai dengan panjang 2 hingga 4 karakter
                     ){
                         sourceVariable = variableValue;
                     }
@@ -325,20 +326,20 @@ class SnowArchival {
         return `${j.sys_created_by}\n${j.sys_created_on}\n${j.value}`;
     }
 
-    // async getTasks(offset, limit) {
-    //     const ritmList = this.includedRitms.map(ritm => `'${ritm}'`).join(',');
-    //     return this.conn.query(`select * from task where sys_class_name = 'sc_req_item' and number in (${ritmList}) order by number desc limit ${limit} offset ${offset};`);
-    // }
     async getTasks(offset, limit) {
-        
-        return this.conn.query(`
-            SELECT * 
-            FROM task 
-            WHERE sys_class_name = 'sc_req_item' 
-            ORDER BY number DESC
-            LIMIT ${limit} OFFSET ${offset};
-        `);
+        const ritmList = this.includedRitms.map(ritm => `'${ritm}'`).join(',');
+        return this.conn.query(`select * from task where sys_class_name = 'sc_req_item' and number in (${ritmList}) order by number desc limit ${limit} offset ${offset};`);
     }
+    // async getTasks(offset, limit) {
+        
+    //     return this.conn.query(`
+    //         SELECT * 
+    //         FROM task 
+    //         WHERE sys_class_name = 'sc_req_item' 
+    //         ORDER BY number DESC
+    //         LIMIT ${limit} OFFSET ${offset};
+    //     `);
+    // }
     
 
     async getTask(taskNumber) {

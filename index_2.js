@@ -43,7 +43,7 @@ class SnowArchival {
     ];
 
     includedRitms = [
-        'RITM1187823'
+        // 'RITM1187823'
         // 'RITM0010503',
         // 'RITM0376153',
         // 'RITM0556811',
@@ -325,20 +325,20 @@ class SnowArchival {
         return `${j.sys_created_by}\n${j.sys_created_on}\n${j.value}`;
     }
 
-    async getTasks(offset, limit) {
-        const ritmList = this.includedRitms.map(ritm => `'${ritm}'`).join(',');
-        return this.conn.query(`select * from task where sys_class_name = 'sc_req_item' and number in (${ritmList}) order by number desc limit ${limit} offset ${offset};`);
-    }
     // async getTasks(offset, limit) {
-        
-    //     return this.conn.query(`
-    //         SELECT * 
-    //         FROM task 
-    //         WHERE sys_class_name = 'sc_req_item' 
-    //         ORDER BY number ASC
-    //         LIMIT ${limit} OFFSET ${offset};
-    //     `);
+    //     const ritmList = this.includedRitms.map(ritm => `'${ritm}'`).join(',');
+    //     return this.conn.query(`select * from task where sys_class_name = 'sc_req_item' and number in (${ritmList}) order by number desc limit ${limit} offset ${offset};`);
     // }
+    async getTasks(offset, limit) {
+        
+        return this.conn.query(`
+            SELECT * 
+            FROM task 
+            WHERE sys_class_name = 'sc_req_item' 
+            ORDER BY number DESC
+            LIMIT ${limit} OFFSET ${offset};
+        `);
+    }
     
 
     async getTask(taskNumber) {

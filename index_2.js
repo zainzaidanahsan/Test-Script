@@ -181,10 +181,11 @@ class SnowArchival {
                     if(
                         // /(4bb40dad1bb46810930821b4bd4bcb9a | 09540bfd1b34a810930821b4bd4bcb54)/i.test(variableValue) ||
                         // /(4bb40dad1bb46810930821b4bd4bcb9a)/i.test(variableValue)
+                        variableValue.length < 10 &&
                         /\bInternal\b/i.test(variableValue) ||        // Cari yang mengandung "Internal"
-                        /\bExternal\b/i.test(variableValue) ||
-                        /^(Internal|External)$/.test(variableValue) &&
-                        variableValue.length < 9  // Cari nilai dengan panjang 2 hingga 4 karakter
+                        /\bExternal\b/i.test(variableValue)
+                        // /^(Internal|External)$/.test(variableValue) &&
+                        // variableValue.length < 9  // Cari nilai dengan panjang 2 hingga 4 karakter
                     ){
                         sourceVariable = variableValue;
                     }

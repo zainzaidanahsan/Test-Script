@@ -186,8 +186,10 @@ class SnowArchival {
                         /\bExternal\b/i.test(variableValue)
                         // /^(Internal|External)$/.test(variableValue) &&
                         // variableValue.length < 9  // Cari nilai dengan panjang 2 hingga 4 karakter
+                        
                     ){
                         sourceVariable = variableValue;
+                        console.log(sourceVariable);
                     }
                 }
 

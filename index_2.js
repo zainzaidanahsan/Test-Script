@@ -43,27 +43,26 @@ class SnowArchival {
     ];
 
     includedRitms = [
-        // 'RITM1187823'
-        // 'RITM0010503',
-        // 'RITM0376153',
-        // 'RITM0556811',
-        // 'RITM1023899',
-        // 'RITM0017426',
-        // 'RITM1187691',
-        // 'RITM0376145',
-        // 'RITM0989659',
-        'RITM1186988',
-        // 'RITM0831264',
-        // 'RITM1187787',
-        // 'RITM1187698',
-        // 'RITM0376155',
-        // 'RITM1188570',
-        // 'RITM1188451',
-        // 'RITM0010483',
-        // 'RITM1068622',
-        // 'RITM0937637',
-        // 'RITM0937756',
-        // 'RITM0019738'
+        'RITM1187823'
+        'RITM0010503',
+        'RITM0376153',
+        'RITM0556811',
+        'RITM1023899',
+        'RITM0017426',
+        'RITM1187691',
+        'RITM0376145',
+        'RITM0989659',
+        'RITM0831264',
+        'RITM1187787',
+        'RITM1187698',
+        'RITM0376155',
+        'RITM1188570',
+        'RITM1188451',
+        'RITM0010483',
+        'RITM1068622',
+        'RITM0937637',
+        'RITM0937756',
+        'RITM0019738'
     ];
 
     constructor(conn, resultDir, batchSize) {

@@ -43,7 +43,7 @@ class SnowArchival {
     ];
 
     includedRitms = [
-        'RITM1187823'
+        'RITM1187823',
         'RITM0010503',
         'RITM0376153',
         'RITM0556811',

@@ -111,7 +111,7 @@ class SnowArchival {
         const companyCode = await this.getCompanyCode(task);
         const stageS = await this.getStageTask(task)
         const priorityLabel = task.priority === 4 ? 'Normal' : task.priority === 5 ? 'Urgent' : task.priority;
-        const stateLabel = task.state === 1 ? 'Open' : task.state === 3 ? 'Closed Completed' : task.state === 4 ? 'Closed Incompleted' : task.state; 
+        const stateLabel = task.state === 5 ? 'Re-Open' : task.state === 1 ? 'Open' : task.state === 3 ? 'Closed Completed' : task.state === 4 ? 'Closed Incompleted' : task.state; 
 
     
         const contexts = await this.conn.query(`select name, stage from wf_context where id = '${task.sys_id}'`);

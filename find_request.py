@@ -31,7 +31,8 @@ for (table_name,) in tables:
             if results:
                 print(f"Found in table `{table_name}`, column `{column_name}`:")
                 for row in results:
-                    print(row)
+                    print(" | ".join(str(item) for item in row))
+                print("\n")
         except mysql.connector.Error as err:
             print(f"Error: {err}")
 

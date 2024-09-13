@@ -17,6 +17,8 @@ tables = cursor.fetchall()
 
 # Mencari nilai di setiap tabel
 search_value = 'REQ0600642'
+found = False
+
 for (table_name,) in tables:
     cursor.execute(f"SHOW COLUMNS FROM `{table_name}`")
     columns = cursor.fetchall()
@@ -24,17 +26,18 @@ for (table_name,) in tables:
     
     # Mencari di setiap kolom
     for column_name in column_names:
-        query = f"SELECT * FROM `{table_name}` WHERE `{column_name}` = %s"
+        query = f"SELECT 1 FROM `{table_name}` WHERE `{column_name}` = %s LIMIT 1"
         try:
             cursor.execute(query, (search_value,))
-            results = cursor.fetchall()
-            if results:
-                print(f"Found in table `{table_name}`, column `{column_name}`:")
-                for row in results:
-                    print(" | ".join(str(item) for item in row))
-                print("\n")
+            result = cursor.fetchone()
+            if result:
+                print(f"Value found in table `{table_name}`, column `{column_name}`")
+                found = True
         except mysql.connector.Error as err:
             print(f"Error: {err}")
+
+if not found:
+    print("Value not found in any table or column.")
 
 cursor.close()
 conn.close()

@@ -131,9 +131,9 @@ class SnowArchival {
             return date instanceof Date && !isNaN(date.getTime());
         }
     
-        const closedAtDate = isValidDate(closedAtDate) && closedAtDate.getTime() !== new Date(0).getTime() 
-        ? closedAtDate.toISOString().split('T')[0] 
-        : null;
+        const closedAtDate = task.closed_at && isValidDate(new Date(task.closed_at)) 
+        ? new Date(task.closed_at).toISOString().split('T')[0] 
+        : 'Null';
         const resolvedAtDate = new Date(task.a_dtm_2);
         const openedAtDate = new Date(task.opened_at);
 

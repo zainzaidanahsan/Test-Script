@@ -111,7 +111,7 @@ class SnowArchival {
         const companyCode = await this.getCompanyCode(task);
         const stageS = await this.getStageTask(task)
         const priorityLabel = task.priority === 4 ? 'Normal' : task.priority === 5 ? 'Urgent' : task.priority;
-        const stateLabel = task.state === 3 ? 'Closed Completed' : task.state === 4 ? 'Closed Incompleted' : task.state;
+        const stateLabel = task.state === 1 ? 'Open' : task.state === 3 ? 'Closed Completed' : task.state === 4 ? 'Closed Incompleted' : task.state; 
 
     
         const contexts = await this.conn.query(`select name, stage from wf_context where id = '${task.sys_id}'`);
@@ -243,18 +243,18 @@ class SnowArchival {
             'Company Code': companyCode,
             'Region': dbRow.u_ritm_region || regionVariable,
             'Priority': priorityLabel,
-            'Source': dbRow.u_ritm_source || sourceVariable || 'Unknown',
+            'Source': dbRow.u_ritm_source || sourceVariable || task.a_str_26,
             'Item': catItemName,
             'Short Description': task.short_description,
             'Resolution Note': task.a_str_10,
             'Resolved': uClosedDate,
             'Closed': closedAtDate,
-            'Stage': dbRow.stage,
+            'Stage': dbRow.stage || task.a_str_1,
             'State': stateLabel,
             'PMI Generic Mailbox': task.a_str_23,
             'Email TO Recipients': task.a_str_25,
             'Email CC Recipients': task.a_str_24,
-            'External User\'s Email': dbRow.u_external_user_s_email || 'N/A',
+            'External User\'s Email': dbRow.u_external_user_s_email || task.a_str_24 ||'N/A',
             'Sys Email Address': task.sys_created_by,
             'Contact Type': task.contact_type,
             'Assigned To': dbRow.assigned_to || 'N/A',
@@ -269,7 +269,7 @@ class SnowArchival {
             'Comments And Work Notes': commentsAndWorkNotes,
             'Request': dbRow.request,
             'Sys Watch List': task.a_str_24,
-            'Request Subject': task.short_description || requestSubject,  
+            'Request Subject': task.short_description,  
             'Explain Request': explainRequest    
         };
     

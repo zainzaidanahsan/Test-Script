@@ -127,8 +127,13 @@ class SnowArchival {
             const stages = await this.conn.query(`select name from wf_stage where sys_id = '${context.stage}'`);
             stageName = stages[0]?.name;
         }
+        function isValidDate(date) {
+            return date instanceof Date && !isNaN(date.getTime());
+        }
     
-        const closedAtDate = new Date(task.closed_at);
+        const closedAtDate = isValidDate(closedAtDate) && closedAtDate.getTime() !== new Date(0).getTime() 
+        ? closedAtDate.toISOString().split('T')[0] 
+        : null;
         const resolvedAtDate = new Date(task.a_dtm_2);
         const openedAtDate = new Date(task.opened_at);
 

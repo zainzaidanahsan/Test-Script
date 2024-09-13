@@ -3,7 +3,7 @@ import mysql.connector
 import numpy as np
 
 # Baca file Excel
-file_path = '/mt/ebs/script/test/Test-Script/newdatadump'
+file_path = '/mt/ebs/script/test/Test-Script/newdatadump.xlsx'
 df = pd.read_excel(file_path)
 
 # Cek nama kolom yang ada di DataFrame

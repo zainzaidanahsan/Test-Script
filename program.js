@@ -207,7 +207,7 @@ class SnowArchival {
             WHERE number = '${task.number}'
         `);
 
-        const dbRow = dbDumpData[0];
+        const dbRow = dbDumpData[0] || {};
         const uClosedDate = dbRow.u_closed_time ? new Date(dbRow.u_closed_time).toISOString().split('T')[0] : 'Null';
         
         const data = {

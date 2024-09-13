@@ -115,11 +115,6 @@ class SnowArchival {
 
     
         const contexts = await this.conn.query(`select name, stage from wf_context where id = '${task.sys_id}'`);
-        const slaStage = await this.conn.query(`
-            SELECT stage 
-            FROM task_sla 
-            WHERE sys_id = '${task.sys_id}';
-        `);
     
         let stageName = '';
         if (contexts && contexts.length > 0) {
@@ -132,7 +127,6 @@ class SnowArchival {
         }
     
         const closedAtDate = new Date(task.closed_at)
-        const resolvedAtDate = new Date(task.a_dtm_2);
         const openedAtDate = new Date(task.opened_at);
 
 
@@ -153,7 +147,6 @@ class SnowArchival {
         if (variables && variables.length > 0) {
             for (let i = 0; i < variables.length; i++) {
                 const variableValue = variables[i]?.value || '';
-
 
                 // Logika untuk "request_subject"
                 if (!requestSubject) {
@@ -181,39 +174,21 @@ class SnowArchival {
                 }
                 if(!sourceVariable){
                     if(
-                        // /(4bb40dad1bb46810930821b4bd4bcb9a | 09540bfd1b34a810930821b4bd4bcb54)/i.test(variableValue) ||
-                        // /(4bb40dad1bb46810930821b4bd4bcb9a)/i.test(variableValue)
                         variableValue.length < 10 &&
-                        /\bInternal\b/i.test(variableValue) ||        // Cari yang mengandung "Internal"
-                        /\bExternal\b/i.test(variableValue)
-                        // /^(Internal|External)$/.test(variableValue) &&
-                        // variableValue.length < 9  // Cari nilai dengan panjang 2 hingga 4 karakter
-                        
+                        /\bInternal\b/i.test(variableValue) ||        // Find Internal/External
+                        /\bExternal\b/i.test(variableValue)        
                     ){
                         sourceVariable = variableValue;
                         
                     }
                 }
-
-                // if(!regionVariable){
-                //     if(
-                //         // /(378343fd1b34a810930821b4bd4bcbce | b811faa81bf02c1061c38739cd4bcbb6)/i.test(variableValue) ||
-                //         // /(b811faa81bf02c1061c38739cd4bcbb6)/i.test(variableValue)
-                //     ){
-                //         regionVariable = variableValue
-                //     }
-                // }
-
                 if (!regionVariable) {
                     if (
-                        /^(EMEA|LA|APAC|EE)$/.test(variableValue)  // Cari nilai dengan panjang 2 hingga 4 karakter
+                        /^(EMEA|LA|APAC|EE)$/.test(variableValue)  // Find Region in Variable List
                     ) {
                         regionVariable = variableValue;
                     }
-                }
-                
-
-
+                } 
                 // Berhenti jika kedua field sudah ditemukan
                 if (requestSubject && explainRequest && regionVariable) {
                     break;
@@ -234,7 +209,6 @@ class SnowArchival {
 
         const dbRow = dbDumpData[0];
         const uClosedDate = dbRow.u_closed_time ? new Date(dbRow.u_closed_time).toISOString().split('T')[0] : 'Null';
-// Region old come from regionVariable || task.a_str_27
         
         const data = {
             'Number': task.number,
@@ -268,7 +242,7 @@ class SnowArchival {
             'Comments And Work Notes': commentsAndWorkNotes,
             'Request': dbRow.request,
             'Sys Watch List': task.a_str_24,
-            'Request Subject': task.short_description,  
+            'Request Subject': task.short_description  || requestSubject,  
             'Explain Request': explainRequest    
         };
     

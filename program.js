@@ -384,13 +384,13 @@ class SnowArchival {
     }
 
     getTaskPath(groupPath, task) {
-        return `${groupPath}/${task.number}_${this.formatDateWithTime(task.sys_created_on)}`;
+        return `${groupPath}/${task.number}_${this.formatDate(task.sys_created_on)}`;
     }
 
     getGroupPath(tasks) {
         const startTask = tasks[0];
         const endTask = tasks[tasks.length - 1];
-        return `${this.resultDir}/${startTask.number}-${endTask.number}_${this.formatDate(startTask.sys_created_on)}_${this.formatDate(endTask.sys_created_on)}`;
+        return `${this.resultDir}/${startTask.number}-${endTask.number}_${this.formatDate(endTask.sys_created_on)}_${this.formatDate(startTask.sys_created_on)}`;
     }
 
     formatDateBeta(date) {

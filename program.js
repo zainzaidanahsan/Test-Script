@@ -164,7 +164,8 @@ class SnowArchival {
                 if (!explainRequest) {
                     if (
                         /(Dear|Please|ATTENTION)/i.test(variableValue) ||              
-                        variableValue.length > 50 ||    
+                        variableValue.length > 50 ||   
+                        requestSubject !== variableValue || 
                         /(2fb5302a1b3c205061c38739cd4bcbf0)/i.test(variableValue)      
                     ) {
                         if (requestSubject !== variableValue) {
@@ -354,8 +355,11 @@ class SnowArchival {
         const concatenatedBuffer = this.decodeMultipartBase64(base64Chunks);
         const meta = attachment.chunks[0];
 
-        const fileName = meta.file_name ? meta.file_name : 'attachment_without_name.png';
-        const attachmentFilePath = `\"${taskPath}/${meta.file_name}\"`;
+
+        const detectedFileType = fileType(concatenatedBuffer);
+        const fileExtension = detectedFileType ? `.${detectedFileType.ext}` : '.bin';
+        const fileName = meta.file_name ? meta.file_name : `default_filename${fileExtension}`;
+        const attachmentFilePath = `\"${taskPath}/${file_name}\"`;
 
         const dirPath = path.dirname(attachmentFilePath);
         if (!fs.existsSync(dirPath)) {

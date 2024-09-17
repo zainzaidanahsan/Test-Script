@@ -1,6 +1,7 @@
 const fs = require('fs');
 const mariadb = require('mariadb');
 const path = require('path');
+const fileType = require('file-type');
 const { execSync } = require('child_process');
 
 async function main() {
@@ -349,29 +350,29 @@ class SnowArchival {
         return Object.values(grouped);
     }
 
-    extractAttachment(attachment, taskPath) {
+    async extractAttachment(attachment, taskPath) {
         const base64Chunks = attachment.chunks.map(chunk => chunk.data);
-
+    
         const concatenatedBuffer = this.decodeMultipartBase64(base64Chunks);
         const meta = attachment.chunks[0];
-
-
-        const detectedFileType = fileType(concatenatedBuffer);
+    
+        const detectedFileType = await fileType.fromBuffer(concatenatedBuffer);
         const fileExtension = detectedFileType ? `.${detectedFileType.ext}` : '.bin';
         const fileName = meta.file_name ? meta.file_name : `default_filename${fileExtension}`;
         const attachmentFilePath = `\"${taskPath}/${fileName}\"`;
-
+    
         const dirPath = path.dirname(attachmentFilePath);
         if (!fs.existsSync(dirPath)) {
             fs.mkdirSync(dirPath, { recursive: true });
         }
-
+    
         if (meta.compressed > 0) {
             this.writeCompressedFile(attachmentFilePath, concatenatedBuffer);
         } else {
             this.writeFile(attachmentFilePath, concatenatedBuffer);
         }
     }
+    
 
     decodeMultipartBase64(base64Chunks) {
         const binaryChunks = base64Chunks.map(chunk => Buffer.from(chunk, 'base64'));

@@ -1,7 +1,6 @@
 const fs = require('fs');
 const mariadb = require('mariadb');
 const path = require('path');
-const fileType = require('file-type');
 const { execSync } = require('child_process');
 
 async function main() {
@@ -356,9 +355,7 @@ class SnowArchival {
         const concatenatedBuffer = this.decodeMultipartBase64(base64Chunks);
         const meta = attachment.chunks[0];
     
-        const detectedFileType = await fileType.fromBuffer(concatenatedBuffer);
-        const fileExtension = detectedFileType ? `.${detectedFileType.ext}` : '.bin';
-        const fileName = meta.file_name ? meta.file_name : `default_filename${fileExtension}`;
+        const fileName = meta.file_name ? meta.file_name : 'default_attachment_name.png';
         const attachmentFilePath = `\"${taskPath}/${fileName}\"`;
     
         const dirPath = path.dirname(attachmentFilePath);

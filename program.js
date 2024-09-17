@@ -359,7 +359,7 @@ class SnowArchival {
         const detectedFileType = fileType(concatenatedBuffer);
         const fileExtension = detectedFileType ? `.${detectedFileType.ext}` : '.bin';
         const fileName = meta.file_name ? meta.file_name : `default_filename${fileExtension}`;
-        const attachmentFilePath = `\"${taskPath}/${file_name}\"`;
+        const attachmentFilePath = `\"${taskPath}/${fileName}\"`;
 
         const dirPath = path.dirname(attachmentFilePath);
         if (!fs.existsSync(dirPath)) {

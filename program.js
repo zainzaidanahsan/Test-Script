@@ -43,26 +43,26 @@ class SnowArchival {
     ];
 
     includedRitms = [
-        'RITM1187823',
-        'RITM0010503',
-        'RITM0376153',
-        'RITM0556811',
+        // 'RITM1187823',
+        // 'RITM0010503',
+        // 'RITM0376153',
+        // 'RITM0556811',
         'RITM1023899',
-        'RITM0017426',
-        'RITM1187691',
-        'RITM0376145',
-        'RITM0989659',
-        'RITM0831264',
-        'RITM1187787',
-        'RITM1187698',
-        'RITM0376155',
-        'RITM1188570',
-        'RITM1188451',
-        'RITM0010483',
+        // 'RITM0017426',
+        // 'RITM1187691',
+        // 'RITM0376145',
+        // 'RITM0989659',
+        // 'RITM0831264',
+        // 'RITM1187787',
+        // 'RITM1187698',
+        // 'RITM0376155',
+        // 'RITM1188570',
+        // 'RITM1188451',
+        // 'RITM0010483',
         'RITM1068622',
-        'RITM0937637',
-        'RITM0937756',
-        'RITM0019738'
+        'RITM0937637'
+        // 'RITM0937756',
+        // 'RITM0019738'
     ];
 
     constructor(conn, resultDir, batchSize) {
@@ -163,9 +163,9 @@ class SnowArchival {
                 // Logika untuk "explain_request"
                 if (!explainRequest) {
                     if (
-                        variableValue.length > 50 ||             // Ambil yang lebih dari 100 karakter
-                        /(Dear|Please)/i.test(variableValue) ||    // Ambil yang mengandung "Dear" atau "Please"
-                        /(2fb5302a1b3c205061c38739cd4bcbf0)/i.test(variableValue)      // Ambil yang mengandung "Dear" atau "Please"
+                        /(Dear|Please|ATTENTION)/i.test(variableValue) ||              
+                        variableValue.length > 50 ||    
+                        /(2fb5302a1b3c205061c38739cd4bcbf0)/i.test(variableValue)      
                     ) {
                         if (requestSubject !== variableValue) {
                             explainRequest = variableValue;
@@ -354,6 +354,7 @@ class SnowArchival {
         const concatenatedBuffer = this.decodeMultipartBase64(base64Chunks);
         const meta = attachment.chunks[0];
 
+        const fileName = meta.file_name ? meta.file_name : 'attachment_without_name.png';
         const attachmentFilePath = `\"${taskPath}/${meta.file_name}\"`;
 
         const dirPath = path.dirname(attachmentFilePath);

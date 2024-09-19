@@ -254,9 +254,14 @@ class SnowArchival {
         const values = Object.values(data).map(value => `"${this.escapeCsvValue(value)}"`).join(',');
     
         // Write CSV string to file
+        const csvString = `${header}\n${values}`;
+        const buffer = iconv.encode(csvString, 'utf8'); // Encoding ke UTF-8
+
         const filepath = `${taskPath}/${task.number}.csv`;
-        fs.writeFileSync('data.csv', `${header}\n${values}`, {endcoding : 'utf8'});
-        execSync(`mv data.csv ${filepath}`);
+        fs.writeFileSync(filepath, buffer); // Menyimpan buffer yang sudah di-encode
+        // const filepath = `${taskPath}/${task.number}.csv`;
+        // fs.writeFileSync('data.csv', `${header}\n${values}`, {endcoding : 'utf8'});
+        // execSync(`mv data.csv ${filepath}`);
     }
     
     async getVendorTypeName(task) {

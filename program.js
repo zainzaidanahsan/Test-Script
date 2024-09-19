@@ -14,7 +14,8 @@ async function main() {
             user: 'pmifsm',
             password: 'pmifsm',
             connectionLimit: 5,
-            database: 'pmifsm'
+            database: 'pmifsm',
+            charset: 'utf8mb4'
         });
 
         conn = await pool.getConnection();
@@ -168,9 +169,7 @@ class SnowArchival {
                         requestSubject !== variableValue || 
                         /(2fb5302a1b3c205061c38739cd4bcbf0)/i.test(variableValue)      
                     ) {
-                        if (requestSubject !== variableValue) {
-                            explainRequest = variableValue;
-                        }
+                            explainRequest = variableValue
                     }
                 }
                 if(!sourceVariable){

@@ -55,7 +55,7 @@ class SnowArchival {
         // 'RITM0831264',
         // 'RITM1187787',
         // 'RITM1187698',
-        'RITM0376155',
+        'RITM0376155'
         // 'RITM1188570',
         // 'RITM1188451',
         // 'RITM0010483',

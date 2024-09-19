@@ -1,6 +1,7 @@
 const fs = require('fs');
 const mariadb = require('mariadb');
 const path = require('path');
+const iconv = require('iconv-lite');
 const { execSync } = require('child_process');
 
 async function main() {
@@ -251,8 +252,15 @@ class SnowArchival {
         const values = Object.values(data).map(value => `"${this.escapeCsvValue(value)}"`).join(',');
     
         // Write CSV string to file
+
+        const csvContent = `${header}\n${values}`;
+        const encodedContent = iconv.encode(csvContent, 'utf8');
+
+        // Write CSV string to file menggunakan encoding utf8
         const filepath = `${taskPath}/${task.number}.csv`;
-        fs.writeFileSync('data.csv', `${header}\n${values}`, {endcoding : 'utf8'});
+        fs.writeFileSync(filepath, encodedContent);
+        // const filepath = `${taskPath}/${task.number}.csv`;
+        // fs.writeFileSync('data.csv', `${header}\n${values}`, {endcoding : 'utf8'});
         execSync(`mv data.csv ${filepath}`);
     }
     

@@ -129,6 +129,8 @@ class SnowArchival {
     
         const closedAtDate = new Date(task.closed_at)
         const openedAtDate = new Date(task.opened_at);
+        const closedDateFormatted = isValidDate(closedAtDate) ? closedAtDate.toISOString().split('T')[0] : 'Null';
+        const openedDateFormatted = isValidDate(openedAtDate) ? openedAtDate.toISOString().split('T')[0] : 'Null';
 
 
         const variables = await this.conn.query(`
@@ -211,9 +213,10 @@ class SnowArchival {
         const dbRow = dbDumpData[0] || {};
         const uClosedDate = dbRow.u_closed_time ? new Date(dbRow.u_closed_time).toISOString().split('T')[0] : 'Null';
         
+        
         const data = {
             'Number': task.number,
-            'Opened': openedAtDate,
+            'Opened': openedDateFormatted,
             'Company Code': companyCode,
             'Region': dbRow.u_ritm_region || regionVariable,
             'Priority': priorityLabel,
@@ -222,7 +225,7 @@ class SnowArchival {
             'Short Description': task.short_description,
             'Resolution Note': task.a_str_10,
             'Resolved': uClosedDate,
-            'Closed': closedAtDate || 'Null',
+            'Closed': closedDateFormatted || 'Null',
             'Stage': dbRow.stage || task.a_str_1,
             'State': stateLabel,
             'PMI Generic Mailbox': task.a_str_23,

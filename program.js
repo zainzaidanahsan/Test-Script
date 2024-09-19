@@ -47,7 +47,7 @@ class SnowArchival {
         // 'RITM0010503',
         // 'RITM0376153',
         // 'RITM0556811',
-        'RITM1023899',
+        // 'RITM1023899',
         // 'RITM0017426',
         // 'RITM1187691',
         // 'RITM0376145',
@@ -55,12 +55,12 @@ class SnowArchival {
         // 'RITM0831264',
         // 'RITM1187787',
         // 'RITM1187698',
-        // 'RITM0376155',
+        'RITM0376155',
         // 'RITM1188570',
         // 'RITM1188451',
         // 'RITM0010483',
-        'RITM1068622',
-        'RITM0937637'
+        // 'RITM1068622',
+        // 'RITM0937637',
         // 'RITM0937756',
         // 'RITM0019738'
     ];
@@ -252,7 +252,7 @@ class SnowArchival {
     
         // Write CSV string to file
         const filepath = `${taskPath}/${task.number}.csv`;
-        fs.writeFileSync('data.csv', `${header}\n${values}`);
+        fs.writeFileSync('data.csv', `${header}\n${values}`, 'utf8');
         execSync(`mv data.csv ${filepath}`);
     }
     

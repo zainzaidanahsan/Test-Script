@@ -261,7 +261,7 @@ class SnowArchival {
         fs.writeFileSync(filepath, encodedContent);
         // const filepath = `${taskPath}/${task.number}.csv`;
         // fs.writeFileSync('data.csv', `${header}\n${values}`, {endcoding : 'utf8'});
-        execSync(`mv data.csv ${filepath}`);
+        // execSync(`mv data.csv ${filepath}`);
     }
     
     async getVendorTypeName(task) {

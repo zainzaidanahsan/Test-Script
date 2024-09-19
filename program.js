@@ -255,7 +255,7 @@ class SnowArchival {
     
         // Write CSV string to file
         const csvString = `${header}\n${values}`;
-        const buffer = iconv.encode(csvString, 'utf8'); // Encoding ke UTF-8
+        const buffer = Buffer.from(csvString, 'utf8'); // Encoding ke UTF-8
 
         const filepath = `${taskPath}/${task.number}.csv`;
         fs.writeFileSync(filepath, buffer); // Menyimpan buffer yang sudah di-encode

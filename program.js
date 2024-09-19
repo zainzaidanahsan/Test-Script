@@ -111,7 +111,6 @@ class SnowArchival {
         const catItemName = await this.getCatItemName(task);
         const reference = await this.getReference(task);
         const companyCode = await this.getCompanyCode(task);
-        const stageS = await this.getStageTask(task)
         const priorityLabel = task.priority === 4 ? 'Normal' : task.priority === 5 ? 'Urgent' : task.priority;
         const stateLabel = task.state === 5 ? 'Re-Open' : task.state === 1 ? 'Open' : task.state === 3 ? 'Closed Completed' : task.state === 4 ? 'Closed Incompleted' : task.state; 
 
@@ -223,7 +222,7 @@ class SnowArchival {
             'Short Description': task.short_description,
             'Resolution Note': task.a_str_10,
             'Resolved': uClosedDate,
-            'Closed': closedAtDate,
+            'Closed': closedAtDate || 'Null',
             'Stage': dbRow.stage || task.a_str_1,
             'State': stateLabel,
             'PMI Generic Mailbox': task.a_str_23,
@@ -235,7 +234,7 @@ class SnowArchival {
             'Assigned To': dbRow.assigned_to || 'N/A',
             'Resolved By': assignedTo,
             'Contact Person': task.a_str_28,
-            'Approval': task.approval,
+            'Approval': (dbRow.stage === 'Waiting For Approval' || task.a_str_1 === 'waiting_for_approval') ? 'Not Yet Requested' : task.approval,
             'Approval Request': task.a_str_11,
             'Approval Set': task.approval_set,
             'Reassignment Count': task.reassignment_count,
@@ -252,16 +251,9 @@ class SnowArchival {
         const values = Object.values(data).map(value => `"${this.escapeCsvValue(value)}"`).join(',');
     
         // Write CSV string to file
-
-        const csvContent = `${header}\n${values}`;
-        const encodedContent = iconv.encode(csvContent, 'utf8');
-
-        // Write CSV string to file menggunakan encoding utf8
         const filepath = `${taskPath}/${task.number}.csv`;
-        fs.writeFileSync(filepath, encodedContent);
-        // const filepath = `${taskPath}/${task.number}.csv`;
-        // fs.writeFileSync('data.csv', `${header}\n${values}`, {endcoding : 'utf8'});
-        // execSync(`mv data.csv ${filepath}`);
+        fs.writeFileSync('data.csv', `${header}\n${values}`, {endcoding : 'utf8'});
+        execSync(`mv data.csv ${filepath}`);
     }
     
     async getVendorTypeName(task) {

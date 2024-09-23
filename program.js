@@ -201,9 +201,9 @@ class SnowArchival {
 
         // Jika tidak ditemukan, tambahkan pesan debug untuk memeriksa query
         if (!requestSubject && !explainRequest) {
-            console.log('No matching variables found for Request Subject or Explain Request.');
+            console.log(`No matching variables found for Request Subject or Explain Request in task number: ${task.number}`);
         }
-
+        
         const dbDumpData = await this.conn.query(`
             SELECT number, stage, u_closed_time, assigned_to, reopening_count, u_external_user_s_email, request
             FROM dbdump

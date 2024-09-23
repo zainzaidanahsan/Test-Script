@@ -199,10 +199,7 @@ class SnowArchival {
             }
         }
 
-        // Jika tidak ditemukan, tambahkan pesan debug untuk memeriksa query
-        if (!requestSubject && !explainRequest) {
-            console.log(`No matching variables found for Request Subject or Explain Request in task number: ${task.number}`);
-        }
+
         
         const dbDumpData = await this.conn.query(`
             SELECT number, stage, u_closed_time, assigned_to, reopening_count, u_external_user_s_email, request
@@ -363,7 +360,7 @@ class SnowArchival {
         const concatenatedBuffer = this.decodeMultipartBase64(base64Chunks);
         const meta = attachment.chunks[0];
     
-        const fileName = meta.file_name ? meta.file_name : 'default_attachment_name.png';
+        const fileName = meta.file_name ? meta.file_name : 'attachment.png';
         const attachmentFilePath = `\"${taskPath}/${fileName}\"`;
     
         const dirPath = path.dirname(attachmentFilePath);

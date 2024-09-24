@@ -14,7 +14,7 @@ async function main() {
             port: 3306,
             user: 'pmifsm',
             password: 'pmifsm',
-            connectionLimit: 5,
+            connectionLimit: 10,
             database: 'pmifsm',
             charset: 'utf8mb4'
         });

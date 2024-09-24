@@ -358,9 +358,7 @@ class SnowArchival {
         return fileName
             .replace(/[\\/]/g, '_')  // Ganti / dan \ dengan underscore
             .replace(/[?%*:|"<>]/g, '');  // Hapus karakter yang tidak diperbolehkan
-    }
-    
-    
+    } 
 
     async extractAttachment(attachment, taskPath) {
         const base64Chunks = attachment.chunks.map(chunk => chunk.data);
@@ -394,7 +392,7 @@ class SnowArchival {
     writeCompressedFile(filepath, buf) {
         try { execSync('rm tmp', { stdio: [] })} catch (e) {};
         fs.writeFileSync('tmp.gz', buf);
-        execSync(`gzip -d tmp.gz && mv tmp ${filepath}`);
+        execSync(`gzip -d tmp.gz && mv tmp "${filepath}"`);
     }
 
     writeFile(filepath, buf) {

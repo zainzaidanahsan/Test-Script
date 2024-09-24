@@ -356,7 +356,6 @@ class SnowArchival {
     
     cleanFileName(fileName) {
         return fileName
-            .replace(/\s+/g, '_')    // Ganti spasi dengan underscore
             .replace(/[\/\\?%*:|"<>]/g, '');  // Hapus karakter yang tidak diperbolehkan
     }
     

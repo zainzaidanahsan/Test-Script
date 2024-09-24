@@ -384,8 +384,8 @@ class SnowArchival {
     writeCompressedFile(filepath, buf) {
         try { execSync('rm tmp', { stdio: [] })} catch (e) {};
         fs.writeFileSync('tmp.gz', buf);
-        execSync(`gzip -d tmp.gz && mv tmp ${filepath}`);
-    }
+        execSync(`gzip -d tmp.gz && mv tmp "${filepath}"`);
+    }    
 
     writeFile(filepath, buf) {
         fs.writeFileSync(filepath, buf);

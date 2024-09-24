@@ -356,9 +356,10 @@ class SnowArchival {
     
     cleanFileName(fileName) {
         return fileName
-            .replace(/\s+/g, '_')    // Ganti spasi dengan underscore
-            .replace(/[\/\\?%*:|"<>]/g, '');  // Hapus karakter yang tidak diperbolehkan
+            .replace(/[\\/]/g, '_')  // Ganti / dan \ dengan underscore
+            .replace(/[?%*:|"<>]/g, '');  // Hapus karakter yang tidak diperbolehkan
     }
+    
     
 
     async extractAttachment(attachment, taskPath) {

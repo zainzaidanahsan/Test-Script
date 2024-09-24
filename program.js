@@ -353,6 +353,13 @@ class SnowArchival {
         }, {});
         return Object.values(grouped);
     }
+    
+    cleanFileName(fileName) {
+        return fileName
+            .replace(/\s+/g, '_')    // Ganti spasi dengan underscore
+            .replace(/[\/\\?%*:|"<>]/g, '');  // Hapus karakter yang tidak diperbolehkan
+    }
+    
 
     async extractAttachment(attachment, taskPath) {
         const base64Chunks = attachment.chunks.map(chunk => chunk.data);
@@ -360,9 +367,12 @@ class SnowArchival {
         const concatenatedBuffer = this.decodeMultipartBase64(base64Chunks);
         const meta = attachment.chunks[0];
     
-        const fileName = meta.file_name ? meta.file_name : 'attachment.png';
-        const attachmentFilePath = `\"${taskPath}/${fileName}\"`;
+        // Clean the file name to remove/replace problematic characters
+        let fileName = meta.file_name ? meta.file_name : 'attachment.png';
+        fileName = this.cleanFileName(fileName);  // Clean the file name
     
+        const attachmentFilePath = `${taskPath}/${fileName}`;
+        
         const dirPath = path.dirname(attachmentFilePath);
         if (!fs.existsSync(dirPath)) {
             fs.mkdirSync(dirPath, { recursive: true });
@@ -374,7 +384,6 @@ class SnowArchival {
             this.writeFile(attachmentFilePath, concatenatedBuffer);
         }
     }
-    
 
     decodeMultipartBase64(base64Chunks) {
         const binaryChunks = base64Chunks.map(chunk => Buffer.from(chunk, 'base64'));
@@ -384,8 +393,8 @@ class SnowArchival {
     writeCompressedFile(filepath, buf) {
         try { execSync('rm tmp', { stdio: [] })} catch (e) {};
         fs.writeFileSync('tmp.gz', buf);
-        execSync(`gzip -d tmp.gz && mv tmp "${filepath}"`);
-    }    
+        execSync(`gzip -d tmp.gz && mv tmp ${filepath}`);
+    }
 
     writeFile(filepath, buf) {
         fs.writeFileSync(filepath, buf);

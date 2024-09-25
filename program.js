@@ -20,7 +20,7 @@ async function main() {
         });
 
         conn = await pool.getConnection();
-        const snowArchival = new SnowArchival(conn, '/mt/ebs/result', 1000);
+        const snowArchival = new SnowArchival(conn, '/mt/ebs/result', 500);
 
         await snowArchival.start();
         console.log('Script finished');
@@ -404,6 +404,9 @@ class SnowArchival {
     }
 
     getGroupPath(tasks) {
+        const taskNumber = tasks[0]?.number || 'default';  // Ambil nomor task pertama
+        const batchFolder = Math.floor((parseInt(taskNumber)) / 1000);  // Buat folder batch per 1000 task
+
         const startTask = tasks[0];
         const endTask = tasks[tasks.length - 1];
         return `${this.resultDir}/${startTask.number}-${endTask.number}_${this.formatDate(endTask.sys_created_on)}_${this.formatDate(startTask.sys_created_on)}`;

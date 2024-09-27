@@ -14,9 +14,10 @@ async function main() {
             port: 3306,
             user: 'pmifsm',
             password: 'pmifsm',
-            connectionLimit: 20,
+            connectionLimit: 50,
             database: 'pmifsm',
-            charset: 'utf8mb4'
+            charset: 'utf8mb4',
+            acquireTimeout: 30000 
         });
 
         conn = await pool.getConnection();

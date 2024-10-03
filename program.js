@@ -14,7 +14,7 @@ async function main() {
             port: 3306,
             user: 'pmifsm',
             password: 'pmifsm',
-            connectionLimit: 20,
+            connectionLimit: 10,
             database: 'pmifsm',
             charset: 'utf8mb4'
         });
@@ -28,6 +28,7 @@ async function main() {
         console.log(err);
     } finally {
         if (conn) await conn.end();
+        if (global.gc) global.gc();
     }
 }
 
@@ -97,6 +98,8 @@ class SnowArchival {
                     await this.extractAttachments(task, taskPath);
                 } catch (err) {
                     console.error(`sys_id: ${task.sys_id}, task_number: ${task.number}, err:`, err);
+                } finally{
+                    if (global.gc) global.gc();
                 }
             }
         }

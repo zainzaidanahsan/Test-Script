@@ -20,7 +20,7 @@ async function main() {
         });
 
         conn = await pool.getConnection();
-        const snowArchival = new SnowArchival(conn, '/mt/ebs/result', 500);
+        const snowArchival = new SnowArchival(conn, '/mt/ebs/result', 500, 5000);
 
         await snowArchival.start();
         console.log('Script finished');
@@ -36,6 +36,8 @@ class SnowArchival {
     conn;
     resultDir;
     batchSize;
+    maxEntries;
+    totalExtracted = 0;
 
     excludedRitms = [
         '2437ffc5478b295047f2c071e36d43df',
@@ -72,12 +74,17 @@ class SnowArchival {
         this.conn = conn;
         this.resultDir = resultDir;
         this.batchSize = batchSize;
+        this.maxEntries = maxEntries;
     }
 
     async start() {
         let startIdx = 0;
 
         while (true) {
+            if (this.totalExtracted >= this.maxEntries) {
+                console.log(`Extracted ${this.totalExtracted} entries, stopping.`);
+                break;
+            }
             let tasks = await this.getTasks(startIdx, this.batchSize);
             if (tasks.length === 0) break;
 
@@ -91,6 +98,10 @@ class SnowArchival {
             console.log(groupPath, startIdx);
 
             for (const task of tasks) {
+                if (this.totalExtracted >= this.maxEntries) {
+                    console.log(`Extracted ${this.totalExtracted} entries, stopping.`);
+                    return;
+                }
                 try {
                     const taskPath = this.getTaskPath(groupPath, task);
                     execSync(`mkdir -p ${taskPath}`);
@@ -102,6 +113,7 @@ class SnowArchival {
                     if (global.gc) global.gc();
                 }
             }
+            console.log(`Batch selesai. RITM terakhir yang terekstrak: ${tasks[tasks.length - 1].number}`);
         }
     }
 

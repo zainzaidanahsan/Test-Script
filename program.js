@@ -20,7 +20,7 @@ async function main() {
         });
 
         conn = await pool.getConnection();
-        const snowArchival = new SnowArchival(conn, '/mt/ebs/result', 500, 5000);
+        const snowArchival = new SnowArchival(conn, '/mt/ebs/result', 1000, 5000);
 
         await snowArchival.start();
         console.log('Script finished');

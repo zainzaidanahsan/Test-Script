@@ -100,7 +100,10 @@ class SnowArchival {
 
             const groupPath = this.getGroupPath(tasks);
             console.log(groupPath, startIdx);
-
+            
+            if (tasks.length > 0) {
+                startTaskNumber = tasks[tasks.length - 1].number;
+            }
 
             for (const task of tasks) {
                 if (this.totalExtracted >= this.maxEntries) {

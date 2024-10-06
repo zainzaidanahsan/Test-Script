@@ -79,23 +79,24 @@ class SnowArchival {
     async start() {
         let startIdx = 0;
         let totalProcessed = 0;
+        let maxEntries = 5000;
         const startTaskNumber = 'RITM1179256';
 
-        while (true) {
+        while (remainingTasks < maxEntries) {
             let tasks = await this.getTasks(startTaskNumber, this.batchSize);
-            if (tasks.length === 0 || totalProcessed >= 5000) break;
+            if (tasks.length === 0) break;
 
-            if (startIdx === 0) {
-                tasks = tasks.filter(t => !this.excludedRitms.includes(t.sys_id));
-            }
+            // if (startIdx === 0) {
+                
+            // }
+            tasks = tasks.filter(t => !this.excludedRitms.includes(t.sys_id));
 
             startIdx += this.batchSize;
 
-            const remainingTasks = 5000 - totalProcessed;
+            const remainingTasks = maxEntries - totalProcessed;
             if (tasks.length > remainingTasks) {
             tasks = tasks.slice(0, remainingTasks);  // Ambil hanya task yang tersisa sebelum mencapai 5000
             }
-
 
             const groupPath = this.getGroupPath(tasks);
             console.log(groupPath, startIdx);

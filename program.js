@@ -382,6 +382,7 @@ class SnowArchival {
     cleanFileName(fileName) {
         return fileName
             .replace(/[\\/]/g, '_')  // Ganti / dan \ dengan underscore
+            .replace(/`/g, '') 
             .replace(/[?%*:|"<>]/g, '');  // Hapus karakter yang tidak diperbolehkan
     } 
 

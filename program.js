@@ -81,7 +81,7 @@ class SnowArchival {
         let startIdx = 0;
 
         while (true) {
-            if (this.totalExtracted >= this.maxEntries) {
+            if (this.totalExtracted = this.maxEntries) {
                 console.log(`Extracted ${this.totalExtracted} entries, stopping.`);
                 break;
             }

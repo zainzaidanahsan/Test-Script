@@ -79,9 +79,10 @@ class SnowArchival {
     async start() {
         let startIdx = 0;
         let totalProcessed = 0;
+        const startTaskNumber = 'RITM1179256';
 
         while (true) {
-            let tasks = await this.getTasks(startIdx, this.batchSize);
+            let tasks = await this.getTasks(startTaskNumber, this.batchSize);
             if (tasks.length === 0 || totalProcessed >= 5000) break;
 
             if (startIdx === 0) {
@@ -331,15 +332,15 @@ class SnowArchival {
     //     const ritmList = this.includedRitms.map(ritm => `'${ritm}'`).join(',');
     //     return this.conn.query(`select * from task where sys_class_name = 'sc_req_item' and number in (${ritmList}) order by number desc limit ${limit} offset ${offset};`);
     // }
-    async getTasks(offset, limit) {
+    async getTasks(startTaskNumber, limit) {
         
         return this.conn.query(`
             SELECT * 
             FROM task 
             WHERE sys_class_name = 'sc_req_item' 
-            AND number = 'RITM1179256'
+            AND number <= '${startTaskNumber}'
             ORDER BY number DESC
-            LIMIT ${limit} OFFSET ${offset};
+            LIMIT ${limit};
         `);
     }
     

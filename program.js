@@ -80,7 +80,7 @@ class SnowArchival {
         let startIdx = 0;
         let totalProcessed = 0;
         let maxEntries = 5000;
-        const startTaskNumber = 'RITM1179256';
+        let startTaskNumber = 'RITM1179256';
 
         while (totalProcessed < maxEntries) {
             let tasks = await this.getTasks(startTaskNumber, this.batchSize);
@@ -100,7 +100,7 @@ class SnowArchival {
 
             const groupPath = this.getGroupPath(tasks);
             console.log(groupPath, startIdx);
-            
+
             if (tasks.length > 0) {
                 startTaskNumber = tasks[tasks.length - 1].number;
             }

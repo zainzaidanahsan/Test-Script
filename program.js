@@ -20,7 +20,7 @@ async function main() {
         });
 
         conn = await pool.getConnection();
-        const snowArchival = new SnowArchival(conn, '/mt/ebs/result', 1000, 5000);
+        const snowArchival = new SnowArchival(conn, '/mt/ebs/result', 1000);
 
         await snowArchival.start();
         console.log('Script finished');
@@ -70,23 +70,19 @@ class SnowArchival {
     //     // 'RITM0019738'
     // ];
 
-    constructor(conn, resultDir, batchSize, maxEntries) {
+    constructor(conn, resultDir, batchSize) {
         this.conn = conn;
         this.resultDir = resultDir;
         this.batchSize = batchSize;
-        this.maxEntries = maxEntries;
     }
 
     async start() {
         let startIdx = 0;
+        let totalProcessed = 0;
 
         while (true) {
-            if (this.totalExtracted = this.maxEntries) {
-                console.log(`Extracted ${this.totalExtracted} entries, stopping.`);
-                break;
-            }
             let tasks = await this.getTasks(startIdx, this.batchSize);
-            if (tasks.length === 0) break;
+            if (tasks.length === 0 || totalProcessed >= 5000) break;
 
             if (startIdx === 0) {
                 tasks = tasks.filter(t => !this.excludedRitms.includes(t.sys_id));
@@ -94,8 +90,15 @@ class SnowArchival {
 
             startIdx += this.batchSize;
 
+            const remainingTasks = 5000 - totalProcessed;
+            if (tasks.length > remainingTasks) {
+            tasks = tasks.slice(0, remainingTasks);  // Ambil hanya task yang tersisa sebelum mencapai 5000
+            }
+
+
             const groupPath = this.getGroupPath(tasks);
             console.log(groupPath, startIdx);
+
 
             for (const task of tasks) {
                 if (this.totalExtracted >= this.maxEntries) {
@@ -113,6 +116,7 @@ class SnowArchival {
                     if (global.gc) global.gc();
                 }
             }
+            totalProcessed += tasks.length; 
             console.log(`Batch selesai. RITM terakhir yang terekstrak: ${tasks[tasks.length - 1].number}`);
         }
     }

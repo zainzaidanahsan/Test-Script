@@ -337,6 +337,7 @@ class SnowArchival {
             SELECT * 
             FROM task 
             WHERE sys_class_name = 'sc_req_item' 
+            AND number = 'RITM1179256'
             ORDER BY number DESC
             LIMIT ${limit} OFFSET ${offset};
         `);

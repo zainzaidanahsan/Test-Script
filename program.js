@@ -80,7 +80,7 @@ class SnowArchival {
         let startIdx = 0;
         let totalProcessed = 0;
         let maxEntries = 5000;
-        let startTaskNumber = 'RITM0813987';
+        let startTaskNumber = 'RITM0804409';
 
         while (totalProcessed < maxEntries) {
             let tasks = await this.getTasks(startTaskNumber, this.batchSize);

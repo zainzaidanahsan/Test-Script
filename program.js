@@ -20,7 +20,7 @@ async function main() {
         });
 
         conn = await pool.getConnection();
-        const snowArchival = new SnowArchival(conn, '/mt/ebs/result', 1000);
+        const snowArchival = new SnowArchival(conn, '/mt/ebs/result2', 1000);
 
         await snowArchival.start();
         console.log('Script finished');
@@ -80,7 +80,7 @@ class SnowArchival {
         let startIdx = 0;
         let totalProcessed = 0;
         let maxEntries = 5000;
-        let startTaskNumber = 'RITM0794854';
+        let startTaskNumber = 'RITM0785391';
 
         while (totalProcessed < maxEntries) {
             let tasks = await this.getTasks(startTaskNumber, this.batchSize);

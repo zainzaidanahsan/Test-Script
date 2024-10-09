@@ -383,8 +383,8 @@ class SnowArchival {
         return fileName
             .replace(/[\\/]/g, '_')  // Ganti / dan \ dengan underscore
             .replace(/`/g, '') 
+            .replace(/[()]/g, '')
             .replace(/[?%*:|"<>]/g, '');  // Hapus karakter yang tidak diperbolehkan
-            .replace(/[()]/g, '');
     } 
 
     async extractAttachment(attachment, taskPath) {

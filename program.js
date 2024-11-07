@@ -20,7 +20,7 @@ async function main() {
         });
 
         conn = await pool.getConnection();
-        const snowArchival = new SnowArchival(conn, '/mt/ebs/result2', 1000);
+        const snowArchival = new SnowArchival(conn, '/mt/ebs/result3', 1000);
 
         await snowArchival.start();
         console.log('Script finished');
@@ -111,8 +111,11 @@ class SnowArchival {
                     return;
                 }
                 try {
-                    const taskPath = this.getTaskPath(groupPath, task);
+                    // const taskPath = this.getTaskPath(groupPath, task);
+                    // execSync(`mkdir -p ${taskPath}`);
+                    const taskPath = path.join(groupPath, `${task.number}_${task.sys_id}`);
                     execSync(`mkdir -p ${taskPath}`);
+
                     await this.extractCsv(task, taskPath);
                     await this.extractAttachments(task, taskPath);
                 } catch (err) {

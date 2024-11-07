@@ -80,7 +80,8 @@ class SnowArchival {
         let startIdx = 0;
         let totalProcessed = 0;
         let maxEntries = 5000;
-        let startTaskNumber = 'RITM0015863';
+        let startTaskNumber = 'RITM0010005';
+        let short_description = 'Materion Invoice 91247485';
 
         while (totalProcessed < maxEntries) {
             let tasks = await this.getTasks(startTaskNumber, this.batchSize);
@@ -111,11 +112,8 @@ class SnowArchival {
                     return;
                 }
                 try {
-                    // const taskPath = this.getTaskPath(groupPath, task);
-                    // execSync(`mkdir -p ${taskPath}`);
-                    const taskPath = path.join(groupPath, `${task.number}_${task.sys_id}`);
+                    const taskPath = this.getTaskPath(groupPath, task);
                     execSync(`mkdir -p ${taskPath}`);
-
                     await this.extractCsv(task, taskPath);
                     await this.extractAttachments(task, taskPath);
                 } catch (err) {
@@ -339,13 +337,14 @@ class SnowArchival {
     //     const ritmList = this.includedRitms.map(ritm => `'${ritm}'`).join(',');
     //     return this.conn.query(`select * from task where sys_class_name = 'sc_req_item' and number in (${ritmList}) order by number desc limit ${limit} offset ${offset};`);
     // }
-    async getTasks(startTaskNumber, limit) {
+    async getTasks(startTaskNumber, limit, short_description) {
         
         return this.conn.query(`
             SELECT * 
             FROM task 
             WHERE sys_class_name = 'sc_req_item' 
-            AND number < '${startTaskNumber}'
+            AND number = '${startTaskNumber}'
+            AND short_description = ${short_description}
             ORDER BY number DESC
             LIMIT ${limit};
         `);
@@ -434,9 +433,6 @@ class SnowArchival {
     }
 
     getGroupPath(tasks) {
-        const taskNumber = tasks[0]?.number || 'default';  // Ambil nomor task pertama
-        const batchFolder = Math.floor((parseInt(taskNumber)) / 1000);  // Buat folder batch per 1000 task
-
         const startTask = tasks[0];
         const endTask = tasks[tasks.length - 1];
         return `${this.resultDir}/${startTask.number}-${endTask.number}_${this.formatDate(endTask.sys_created_on)}_${this.formatDate(startTask.sys_created_on)}`;

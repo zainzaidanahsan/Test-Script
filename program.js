@@ -48,6 +48,11 @@ class SnowArchival {
     ];
 
     includedRitms = [
+        'RITM0010005',
+        'RITM0010005',
+        'RITM0010005',
+        'RITM0010005',
+        'RITM0010005',
         'RITM0010005'
     ];
 
@@ -350,7 +355,6 @@ class SnowArchival {
             FROM task 
             WHERE sys_class_name = 'sc_req_item'
             AND number IN (${ritmList})
-            AND short_description = 'Payment for RS Components Released on May 29 & May30, 2023   CC06'
             ORDER BY number DESC 
             LIMIT ${limit}
             OFFSET ${offset};

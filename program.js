@@ -47,28 +47,9 @@ class SnowArchival {
         'ff4f94951b0ba550b3f5a6c3b24bcb76',
     ];
 
-    // includedRitms = [
-    //     // 'RITM1187823',
-    //     // 'RITM0010503',
-    //     // 'RITM0376153',
-    //     // 'RITM0556811',
-    //     // 'RITM1023899',
-    //     // 'RITM0017426',
-    //     // 'RITM1187691',
-    //     // 'RITM0376145',
-    //     // 'RITM0989659',
-    //     // 'RITM0831264',
-    //     // 'RITM1187787',
-    //     // 'RITM1187698',
-    //     'RITM0376155',
-    //     'RITM1188570',
-    //     'RITM1188451'
-    //     // 'RITM0010483',
-    //     // 'RITM1068622',
-    //     // 'RITM0937637',
-    //     // 'RITM0937756',
-    //     // 'RITM0019738'
-    // ];
+    includedRitms = [
+        'RITM0010005'
+    ];
 
     constructor(conn, resultDir, batchSize) {
         this.conn = conn;
@@ -78,39 +59,21 @@ class SnowArchival {
 
     async start() {
         let startIdx = 0;
-        let totalProcessed = 0;
-        let maxEntries = 5000;
-        let startTaskNumber = 'RITM0010005';
-        let short_description = 'Materion Invoice 91247485';
 
-        while (totalProcessed < maxEntries) {
-            let tasks = await this.getTasks(startTaskNumber, this.batchSize);
+        while (true) {
+            let tasks = await this.getTasks(startIdx, this.batchSize);
             if (tasks.length === 0) break;
 
-            // if (startIdx === 0) {
-                
-            // }
-            tasks = tasks.filter(t => !this.excludedRitms.includes(t.sys_id));
+            if (startIdx === 0) {
+                tasks = tasks.filter(t => !this.excludedRitms.includes(t.sys_id));
+            }
 
             startIdx += this.batchSize;
-
-            const remainingTasks = maxEntries - totalProcessed;
-            if (tasks.length > remainingTasks) {
-            tasks = tasks.slice(0, remainingTasks);  // Ambil hanya task yang tersisa sebelum mencapai 5000
-            }
 
             const groupPath = this.getGroupPath(tasks);
             console.log(groupPath, startIdx);
 
-            if (tasks.length > 0) {
-                startTaskNumber = tasks[tasks.length - 1].number;
-            }
-
             for (const task of tasks) {
-                if (this.totalExtracted >= this.maxEntries) {
-                    console.log(`Extracted ${this.totalExtracted} entries, stopping.`);
-                    return;
-                }
                 try {
                     const taskPath = this.getTaskPath(groupPath, task);
                     execSync(`mkdir -p ${taskPath}`);
@@ -118,14 +81,61 @@ class SnowArchival {
                     await this.extractAttachments(task, taskPath);
                 } catch (err) {
                     console.error(`sys_id: ${task.sys_id}, task_number: ${task.number}, err:`, err);
-                } finally{
-                    if (global.gc) global.gc();
                 }
             }
-            totalProcessed += tasks.length; 
-            console.log(`Batch selesai. RITM terakhir yang terekstrak: ${tasks[tasks.length - 1].number}`);
         }
     }
+
+    // async start() {
+    //     let startIdx = 0;
+    //     let totalProcessed = 0;
+    //     let maxEntries = 5000;
+    //     let startTaskNumber = 'RITM0010005';
+    //     let short_description = 'Materion Invoice 91247485';
+
+    //     while (totalProcessed < maxEntries) {
+    //         let tasks = await this.getTasks(startTaskNumber, this.batchSize);
+    //         if (tasks.length === 0) break;
+
+    //         // if (startIdx === 0) {
+                
+    //         // }
+    //         tasks = tasks.filter(t => !this.excludedRitms.includes(t.sys_id));
+
+    //         startIdx += this.batchSize;
+
+    //         const remainingTasks = maxEntries - totalProcessed;
+    //         if (tasks.length > remainingTasks) {
+    //         tasks = tasks.slice(0, remainingTasks);  // Ambil hanya task yang tersisa sebelum mencapai 5000
+    //         }
+
+    //         const groupPath = this.getGroupPath(tasks);
+    //         console.log(groupPath, startIdx);
+
+    //         if (tasks.length > 0) {
+    //             startTaskNumber = tasks[tasks.length - 1].number;
+    //         }
+
+    //         for (const task of tasks) {
+    //             if (this.totalExtracted >= this.maxEntries) {
+    //                 console.log(`Extracted ${this.totalExtracted} entries, stopping.`);
+    //                 return;
+    //             }
+    //             try {
+    //                 const taskPath = this.getTaskPath(groupPath, task);
+    //                 execSync(`mkdir -p ${taskPath}`);
+    //                 await this.extractCsv(task, taskPath);
+    //                 await this.extractAttachments(task, taskPath);
+    //             } catch (err) {
+    //                 console.error(`sys_id: ${task.sys_id}, task_number: ${task.number}, err:`, err);
+    //             } finally{
+    //                 if (global.gc) global.gc();
+    //             }
+    //         }
+    //         totalProcessed += tasks.length; 
+    //         console.log(`Batch selesai. RITM terakhir yang terekstrak: ${tasks[tasks.length - 1].number}`);
+    //     }
+    // }
 
 
     async extractCsv(task, taskPath) {
@@ -333,22 +343,38 @@ class SnowArchival {
         return `${j.sys_created_by}\n${j.sys_created_on}\n${j.value}`;
     }
 
-    // async getTasks(offset, limit) {
-    //     const ritmList = this.includedRitms.map(ritm => `'${ritm}'`).join(',');
-    //     return this.conn.query(`select * from task where sys_class_name = 'sc_req_item' and number in (${ritmList}) order by number desc limit ${limit} offset ${offset};`);
-    // }
-    async getTasks(startTaskNumber, limit, short_description) {
-        
+    async getTasks(offset, limit) {
+        const ritmList = this.includedRitms.map(ritm => `'${ritm}'`).join(',');
         return this.conn.query(`
             SELECT * 
             FROM task 
-            WHERE sys_class_name = 'sc_req_item' 
-            AND number < '${startTaskNumber}'
-            AND short_description like ${short_description}
-            ORDER BY number DESC
-            LIMIT ${limit};
-        `);
+            WHERE sys_class_name = 'sc_req_item'
+            AND number IN (${ritmList}) 
+            AND short_description IN (
+            'Re: Academic survey for 10 minutes, please;',
+            'Payment for RS Components Released;',
+            'HP DM Engage Flex Mini PC -3V6F5AV;',
+            'ФОП та українець про податкові зміни з 1 липня, ризики блокування рахунків податківцями, (не)декларування доходів і штрафи.;',
+            'Materion Invoice 91247484;',
+            'Materion Invoice 91247485;'
+        )
+            ORDER BY number DESC 
+            LIMIT ${limit}
+            OFFSET ${offset};
+            `);
     }
+    // async getTasks(startTaskNumber, limit, short_description) {
+        
+    //     return this.conn.query(`
+    //         SELECT * 
+    //         FROM task 
+    //         WHERE sys_class_name = 'sc_req_item' 
+    //         AND number < '${startTaskNumber}'
+    //         AND short_description like ${short_description}
+    //         ORDER BY number DESC
+    //         LIMIT ${limit};
+    //     `);
+    // }
     
 
     async getTask(taskNumber) {

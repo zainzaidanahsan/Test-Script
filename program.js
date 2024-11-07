@@ -343,7 +343,7 @@ class SnowArchival {
             SELECT * 
             FROM task 
             WHERE sys_class_name = 'sc_req_item' 
-            AND number = '${startTaskNumber}'
+            AND number < '${startTaskNumber}'
             AND short_description like ${short_description}
             ORDER BY number DESC
             LIMIT ${limit};

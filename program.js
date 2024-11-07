@@ -350,7 +350,6 @@ class SnowArchival {
             FROM task 
             WHERE sys_class_name = 'sc_req_item'
             AND number IN (${ritmList}) 
-            AND short_description = 'Re: Academic survey for 10 minutes, please;'
             ORDER BY number DESC 
             LIMIT ${limit}
             OFFSET ${offset};

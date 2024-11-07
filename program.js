@@ -350,14 +350,7 @@ class SnowArchival {
             FROM task 
             WHERE sys_class_name = 'sc_req_item'
             AND number IN (${ritmList}) 
-            AND short_description IN (
-            'Re: Academic survey for 10 minutes, please;',
-            'Payment for RS Components Released;',
-            'HP DM Engage Flex Mini PC -3V6F5AV;',
-            'ФОП та українець про податкові зміни з 1 липня, ризики блокування рахунків податківцями, (не)декларування доходів і штрафи.;',
-            'Materion Invoice 91247484;',
-            'Materion Invoice 91247485;'
-        )
+            AND short_description = 'Re: Academic survey for 10 minutes, please;'
             ORDER BY number DESC 
             LIMIT ${limit}
             OFFSET ${offset};

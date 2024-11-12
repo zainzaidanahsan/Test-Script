@@ -94,8 +94,8 @@ class SnowArchival {
     async start() {
         let startIdx = 0;
         let totalProcessed = 0;
-        let maxEntries = 5000;
-        let startTaskNumber = 'RITM0015863';
+        let maxEntries = 1000;
+        let startTaskNumber = 'RITM1063239';
 
         while (totalProcessed < maxEntries) {
             let tasks = await this.getTasks(startTaskNumber, this.batchSize);
@@ -365,7 +365,7 @@ class SnowArchival {
             SELECT * 
             FROM task 
             WHERE sys_class_name = 'sc_req_item' 
-            AND number < '${startTaskNumber}'
+            AND number = '${startTaskNumber}'
             ORDER BY number DESC
             LIMIT ${limit};
         `);

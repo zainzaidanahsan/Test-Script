@@ -20,7 +20,7 @@ async function main() {
         });
 
         conn = await pool.getConnection();
-        const snowArchival = new SnowArchival(conn, '/mt/ebs/result3', 1000);
+        const snowArchival = new SnowArchival(conn, '/mt/ebs/resultSisa', 1000);
 
         await snowArchival.start();
         console.log('Script finished');
@@ -365,7 +365,7 @@ class SnowArchival {
             SELECT * 
             FROM task 
             WHERE sys_class_name = 'sc_req_item' 
-            AND number = '${startTaskNumber}'
+            AND number < '${startTaskNumber}'
             ORDER BY number DESC
             LIMIT ${limit};
         `);

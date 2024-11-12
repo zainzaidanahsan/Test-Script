@@ -15,6 +15,9 @@ async function main() {
             user: 'pmifsm',
             password: 'pmifsm',
             connectionLimit: 10,
+            acquireTimeout: 30000,
+            connectTimeout: 30000,
+            idleTimeout: 60000,
             database: 'pmifsm',
             charset: 'utf8mb4'
         });
@@ -95,7 +98,7 @@ class SnowArchival {
         let startIdx = 0;
         let totalProcessed = 0;
         let maxEntries = 1000;
-        let startTaskNumber = 'RITM0237613';
+        let startTaskNumber = 'RITM0239429';
 
         while (totalProcessed < maxEntries) {
             let tasks = await this.getTasks(startTaskNumber, this.batchSize);
